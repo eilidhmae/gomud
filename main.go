@@ -21,7 +21,8 @@ func main() {
 	fmt.Println(welcomeBanner)
 	min := 5
 	max := 18
-	stats := gomud.RollStats(min, max)
 
-	fmt.Printf("Stats: %v (range %d - %d)\n", stats.Raw, min, max)
+	for _, class := range []string{"fighter","rogue","mage","cleric"} {
+		fmt.Printf("Stats for %10s: %s (range %d - %d)\n", class, gomud.RollStats(min, max, class).Text(), min, max)
+	}
 }
