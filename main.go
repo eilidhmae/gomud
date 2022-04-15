@@ -3,7 +3,7 @@ package main
 
 import (
 	"fmt"
-	mud "gomud/character"
+	mud "gomud/adventure"
 )
 
 const welcomeBanner = `
