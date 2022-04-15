@@ -6,6 +6,7 @@ import (
 )
 
 func TestLoginWithReader(t *testing.T) {
+	defer quiet()()
 	input := "david"
 	c := LoginWithReader(strings.NewReader(input))
 	if c.Name != input {
@@ -14,6 +15,7 @@ func TestLoginWithReader(t *testing.T) {
 }
 
 func TestClassPromptWithReader(t *testing.T) {
+	defer quiet()()
 	var c Character
 	c.Name = "martin"
 	input := "cleric"
@@ -24,6 +26,7 @@ func TestClassPromptWithReader(t *testing.T) {
 }
 
 func TestClassHandler(t *testing.T) {
+	defer quiet()()
 	testTrim := "  mage  "
 	testClassPatterns := []string{"rogue","mage","cleric","fighter"}
 	testAntiPatterns := []string{"blaster","vogue","","12345","two words"}
