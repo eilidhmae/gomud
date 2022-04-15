@@ -51,13 +51,15 @@ func (c *Character) Do(quit,done chan bool, action string) {
 		fmt.Println("goodbye adventurer.")
 		quit <- true
 	case "help":
-		fmt.Println("you can: help,look,inventory,quit,stats")
+		helpHandler()
 	case "stats":
 		statsHandler(c)
 	case "inventory":
-		fmt.Println("you ain't got shit.")
+		inventoryHandler()
 	case "look":
-		fmt.Println("there's a tree. it doesn't move much.")
+		lookHandler()
+	case "areas":
+		areasHandler()
 	case "dance":
 		fmt.Println("shake your booty.")
 	default:
@@ -68,4 +70,22 @@ func (c *Character) Do(quit,done chan bool, action string) {
 
 func statsHandler(c *Character) {
 	fmt.Printf("%s - %s\n%s\n", c.Name, c.Class, c.Stats.Text())
+}
+
+func helpHandler() {
+	fmt.Println("you can: help,look,inventory,areas,quit")
+}
+
+func inventoryHandler() {
+	fmt.Println("you ain't got shit.")
+}
+
+func lookHandler() {
+	fmt.Println("There's a tree. it doesn't move much. There's a wooden crate under the tree, and a pot of coffee with clean mugs.")
+}
+
+func areasHandler() {
+	// future support for area files
+	// https://github.com/alexmchale/merc-mud/blob/master/doc/area.txt
+	fmt.Println("#AREA	{ 5 35} Eilidh    The Coffeehouse~")
 }
