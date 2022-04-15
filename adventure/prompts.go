@@ -85,7 +85,7 @@ func (c *Character) Do(errorHandler chan string, quit,done chan bool, action str
 }
 
 func statsHandler(c *Character) {
-	fmt.Printf("%s - %s\n%s\n", c.Name, c.Class, c.Stats.Text())
+	fmt.Printf("%s the %s\n%s\n", c.Name, c.Class, c.Stats.Text())
 }
 
 func helpHandler() {
