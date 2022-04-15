@@ -30,7 +30,7 @@ func Prompt(quit chan bool) {
 	var action string
 	done := make(chan bool)
 	for {
-		fmt.Println("What would you like to do?")
+		fmt.Println("\nWhat would you like to do?")
 		fmt.Scanln(&action)
 		go parsePrompt(quit, done, action)
 		<-done
@@ -43,13 +43,15 @@ func parsePrompt(quit,done chan bool, action string) {
 		fmt.Println("goodbye adventurer.")
 		quit <- true
 	case "help":
-		fmt.Printf("you can: help,look,inventory,quit\n\n")
+		fmt.Println("you can: help,look,inventory,quit")
 	case "inventory":
-		fmt.Printf("you ain't got shit.\n\n")
+		fmt.Println("you ain't got shit.")
 	case "look":
-		fmt.Printf("there's a tree. it doesn't move much.\n\n")
+		fmt.Println("there's a tree. it doesn't move much.")
+	case "dance":
+		fmt.Println("shake your booty.")
 	default:
-		fmt.Printf("not possible.\n\n")
+		fmt.Println("not possible.")
 	}
 	done <- true
 }
