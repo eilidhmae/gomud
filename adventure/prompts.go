@@ -1,143 +1,116 @@
 package gomud
 
 import (
-	"fmt"
-	"strings"
-	"sync"
-	"os"
 	"bufio"
+	"fmt"
 	"io"
+	"os"
+	"strings"
 )
 
-var UserPrompt sync.Mutex
-
-func Login() Character {
-	return LoginWithReader(os.Stdin)
+func LoginWithOS() Character {
+	return Login(os.Stdin, os.Stdout)
 }
 
-func LoginWithReader(input io.Reader) Character {
-	UserPrompt.Lock()
-	fmt.Println("Hello adventurer. What is your name?")
-	s := bufio.NewScanner(input)
+func Login(r io.Reader, w io.Writer) Character {
+	w.Write([]byte("Hello adventurer. What is your name?\n"))
+	s := bufio.NewScanner(r)
 	s.Scan()
 	name := s.Text()
-	UserPrompt.Unlock()
-	c := NewCharacter(name)
+	c := NewCharacter(name, r, w)
 	return c
 }
 
-func (c *Character) ClassPrompt() {
-	c.ClassPromptWithReader(os.Stdin)
-}
-
-func (c *Character) ClassPromptWithReader(input io.Reader) {
-	UserPrompt.Lock()
-	fmt.Printf("Please select a class %s: [fighter], mage, cleric, rogue\n", c.Name)
-	s := bufio.NewScanner(input)
+func (c *Character) ClassPrompt(r io.Reader, w io.Writer) {
+	msg := fmt.Sprintf("Please select a class %s: [fighter], mage, cleric, rogue\n", c.Name)
+	c.Mutex.Lock()
+	w.Write([]byte(msg))
+	s := bufio.NewScanner(r)
 	s.Scan()
 	class := s.Text()
-	UserPrompt.Unlock()
+	c.Mutex.Unlock()
 	c.Class = classHandler(class)
 }
 
 func classHandler(class string) string {
-	trimmed := strings.TrimSpace(class)
-	switch trimmed {
+	t := strings.TrimSpace(class)
+	switch t {
 	case "mage":
-		return trimmed
+		return t
 	case "cleric":
-		return trimmed
+		return t
 	case "rogue":
-		return trimmed
+		return t
 	default:
 		return "fighter"
 	}
 }
 
-func (c *Character) Prompt(quit chan bool, errorHandler chan string) {
-	c.PromptWithReader(os.Stdin, quit, errorHandler)
+func (c *Character) PromptWithOS(quit chan bool, errorHandler chan error) {
+	go c.Prompt(os.Stdin, os.Stdout, quit, errorHandler)
 }
 
-func (c *Character) PromptWithReader(input io.Reader, quit chan bool, errorHandler chan string) {
-	done := make(chan bool)
+func (c *Character) Prompt(r io.Reader, w io.Writer, quit chan bool, errorHandler chan error) {
 	for {
-		UserPrompt.Lock()
-		fmt.Println("\nWhat would you like to do?")
-		s := bufio.NewScanner(input)
+		c.Mutex.Lock()
+		w.Write([]byte("\nWhat would you like to do?\n"))
+		s := bufio.NewScanner(r)
 		s.Scan()
 		c.Action = s.Text()
-		UserPrompt.Unlock()
-		go c.Do(errorHandler, quit, done)
-		<-done
+		c.Mutex.Unlock()
+		if q := c.Do(r, w, errorHandler); q == true {
+			quit <- true
+		}
 	}
 }
 
 func commandHandler(action string) (string, []string) {
+	var args []string
 	w := strings.Split(action, " ")
 	cmd := w[0]
-	args := w[1:]
+	if len(w) > 1 {
+		args = w[1:]
+	} else {
+		args = []string{"unknown"}
+	}
 	return cmd, args
 }
 
-func (c *Character) Do(errorHandler chan string, quit,done chan bool) {
+func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 	command, args := commandHandler(c.Action)
-	UserPrompt.Lock()
+	c.Mutex.Lock()
 	switch command {
 	case "quit":
-		fmt.Println("goodbye adventurer.")
-		quit <- true
+		return true
 	case "help":
-		helpHandler()
+		w.Write([]byte("you can: areas,get,help,inventory,look,quit,stats\n"))
 	case "stats":
-		statsHandler(c)
+		msg := fmt.Sprintf("%s the %s\n%s\n", c.Name, c.Class, c.Stats.Text())
+		c.Writer.Write([]byte(msg))
 	case "inventory":
-		inventoryHandler()
+		w.Write([]byte("you ain't got shit.\n"))
 	case "look":
-		lookHandler()
+		w.Write([]byte("There's a tree. it doesn't move much. There's a wooden crate under the tree, and a pot of coffee with clean mugs.\n"))
 	case "areas":
-		areasHandler()
+		// future support for area files
+		// https://github.com/alexmchale/merc-mud/blob/master/doc/area.txt
+		w.Write([]byte("#AREA	{ 5 35} Eilidh    The Coffeehouse~\n"))
 	case "dance":
-		fmt.Println("shake your booty.")
+		w.Write([]byte("shake your booty.\n"))
 	case "get":
-		getHandler(args[0])
+		switch args[0] {
+		case "coffee":
+			w.Write([]byte("you get warm coffee in a fresh mug.\n"))
+		case "mug":
+			w.Write([]byte("you grab an empty mug, but you don't have any pockets.\n"))
+		case "crate":
+			w.Write([]byte("it's too heavy.\n"))
+		default:
+			w.Write([]byte("get what?\n"))
+		}
 	default:
-		fmt.Println("not possible.")
+		w.Write([]byte("not possible.\n"))
 	}
-	UserPrompt.Unlock()
-	done <- true
-}
-
-func getHandler(arg string) {
-	switch arg {
-	case "coffee":
-		fmt.Println("you get warm coffee in a fresh mug.")
-	case "mug":
-		fmt.Println("you grab an empty mug, but you don't have any pockets.")
-	case "crate":
-		fmt.Println("it's too heavy.")
-	default:
-		fmt.Println("get what?")
-	}
-}
-
-func statsHandler(c *Character) {
-	fmt.Printf("%s the %s\n%s\n", c.Name, c.Class, c.Stats.Text())
-}
-
-func helpHandler() {
-	fmt.Println("you can: help,look,inventory,areas,stats,quit")
-}
-
-func inventoryHandler() {
-	fmt.Println("you ain't got shit.")
-}
-
-func lookHandler() {
-	fmt.Println("There's a tree. it doesn't move much. There's a wooden crate under the tree, and a pot of coffee with clean mugs.")
-}
-
-func areasHandler() {
-	// future support for area files
-	// https://github.com/alexmchale/merc-mud/blob/master/doc/area.txt
-	fmt.Println("#AREA	{ 5 35} Eilidh    The Coffeehouse~")
+	c.Mutex.Unlock()
+	return false
 }

@@ -1,26 +1,30 @@
 package gomud
 
 import (
+	"os"
 	"strings"
 	"testing"
 )
 
-func TestLoginWithReader(t *testing.T) {
+func TestLogin(t *testing.T) {
 	defer quiet()()
-	input := "david"
-	c := LoginWithReader(strings.NewReader(input))
-	if c.Name != input {
+	r := "david"
+	w, _ := os.Open(os.DevNull)
+	defer w.Close()
+	c := Login(strings.NewReader(r), w)
+	if c.Name != r {
 		t.Errorf("Login mismatch")
 	}
 }
 
-func TestClassPromptWithReader(t *testing.T) {
+func TestClassPrompt(t *testing.T) {
 	defer quiet()()
 	var c Character
 	c.Name = "martin"
-	input := "cleric"
-	c.ClassPromptWithReader(strings.NewReader(input))
-	if c.Class != input {
+	r := "cleric"
+	w, _ := os.Open(os.DevNull)
+	c.ClassPrompt(strings.NewReader(r), w)
+	if c.Class != r {
 		t.Errorf("ClassPrompt mismatch")
 	}
 }
@@ -70,5 +74,16 @@ func TestCommandHandler(t *testing.T) {
 		if args[i] != expectedArgs[i] {
 			t.Errorf("args mismatch: expected: %s got: %s", expectedArgs[i], args[i])
 		}
+	}
+}
+
+func TestDo(t *testing.T) {
+	w, _ := os.Open(os.DevNull)
+	defer w.Close()
+	err := make(chan error)
+	var c Character
+	c.Action = "quit"
+	if c.Do(strings.NewReader(""), w, err) != true {
+		t.Errorf("quit returned false")
 	}
 }

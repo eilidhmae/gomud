@@ -17,11 +17,11 @@ const welcomeBanner = `
 
 func main() {
 	fmt.Println(welcomeBanner)
-	errorHandler := make(chan string)
+	errorHandler := make(chan error)
 	quit := make(chan bool)
 
-	c := mud.Login()
-	go c.Prompt(quit, errorHandler)
+	c := mud.LoginWithOS()
+	go c.PromptWithOS(quit, errorHandler)
 	for {
 		select {
 		case <-quit:
