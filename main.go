@@ -3,7 +3,7 @@ package main
 
 import (
 	"fmt"
-	"gomud/character"
+	mud "gomud/character"
 )
 
 const welcomeBanner = `
@@ -19,8 +19,19 @@ func main() {
 	fmt.Println(welcomeBanner)
 	min := 5
 	max := 18
+	quit := make(chan bool)
 
-	for _, class := range []string{"fighter","rogue","mage","cleric"} {
-		fmt.Printf("Stats for %10s: %s (range %d - %d)\n", class, gomud.RollStats(min, max, class).Text(), min, max)
-	}
+	class := mud.ClassPrompt()
+	fmt.Printf("Stats for %10s: %s\n\n", class, mud.RollStats(min, max, class).Text())
+
+	// start a thread handling commands from user
+	go mud.Prompt(quit)
+	
+	// help: displays choices with brief explanation
+	// inventory: display contents of inventory
+	// look: describe current room
+	// north/south/east/west: enter another room in given direction
+	// fight: attack mob in current room (create fight thread that returns to action thread)
+	// wait for quit signal from Prompt()
+	<-quit
 }
