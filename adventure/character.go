@@ -4,6 +4,7 @@ type Character struct {
 	Name		string
 	Class		string
 	Stats		Stats
+	Action		string
 }
 
 func NewCharacter(name string) Character {

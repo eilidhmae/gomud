@@ -55,15 +55,19 @@ func classHandler(class string) string {
 }
 
 func (c *Character) Prompt(quit chan bool, errorHandler chan string) {
+	c.PromptWithReader(os.Stdin, quit, errorHandler)
+}
+
+func (c *Character) PromptWithReader(input io.Reader, quit chan bool, errorHandler chan string) {
 	done := make(chan bool)
 	for {
 		UserPrompt.Lock()
 		fmt.Println("\nWhat would you like to do?")
-		s := bufio.NewScanner(os.Stdin)
+		s := bufio.NewScanner(input)
 		s.Scan()
-		action := s.Text()
+		c.Action = s.Text()
 		UserPrompt.Unlock()
-		go c.Do(errorHandler, quit, done, action)
+		go c.Do(errorHandler, quit, done)
 		<-done
 	}
 }
@@ -75,8 +79,9 @@ func commandHandler(action string) (string, []string) {
 	return cmd, args
 }
 
-func (c *Character) Do(errorHandler chan string, quit,done chan bool, action string) {
-	command, args := commandHandler(action)
+func (c *Character) Do(errorHandler chan string, quit,done chan bool) {
+	command, args := commandHandler(c.Action)
+	UserPrompt.Lock()
 	switch command {
 	case "quit":
 		fmt.Println("goodbye adventurer.")
@@ -98,6 +103,7 @@ func (c *Character) Do(errorHandler chan string, quit,done chan bool, action str
 	default:
 		fmt.Println("not possible.")
 	}
+	UserPrompt.Unlock()
 	done <- true
 }
 
