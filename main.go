@@ -1,5 +1,5 @@
 package main
-
+// created by Eilidh Robey erobey@sonatype.com
 
 import (
 	"fmt"
