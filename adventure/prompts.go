@@ -6,14 +6,19 @@ import (
 	"sync"
 	"os"
 	"bufio"
+	"io"
 )
 
 var UserPrompt sync.Mutex
 
 func Login() Character {
+	return LoginWithReader(os.Stdin)
+}
+
+func LoginWithReader(input io.Reader) Character {
 	UserPrompt.Lock()
 	fmt.Println("Hello adventurer. What is your name?")
-	s := bufio.NewScanner(os.Stdin)
+	s := bufio.NewScanner(input)
 	s.Scan()
 	name := s.Text()
 	UserPrompt.Unlock()
@@ -22,16 +27,20 @@ func Login() Character {
 }
 
 func (c *Character) ClassPrompt() {
+	c.ClassPromptWithReader(os.Stdin)
+}
+
+func (c *Character) ClassPromptWithReader(input io.Reader) {
 	UserPrompt.Lock()
 	fmt.Printf("Please select a class %s: [fighter], mage, cleric, rogue\n", c.Name)
-	s := bufio.NewScanner(os.Stdin)
+	s := bufio.NewScanner(input)
 	s.Scan()
 	class := s.Text()
 	UserPrompt.Unlock()
-	c.Class = parseClassPrompt(class)
+	c.Class = classHandler(class)
 }
 
-func parseClassPrompt(class string) string {
+func classHandler(class string) string {
 	trimmed := strings.TrimSpace(class)
 	switch trimmed {
 	case "mage":

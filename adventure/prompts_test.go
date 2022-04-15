@@ -1,21 +1,42 @@
 package gomud
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
-func TestParseClassPrompt(t *testing.T) {
+func TestLoginWithReader(t *testing.T) {
+	input := "david"
+	c := LoginWithReader(strings.NewReader(input))
+	if c.Name != input {
+		t.Errorf("Login mismatch")
+	}
+}
+
+func TestClassPromptWithReader(t *testing.T) {
+	var c Character
+	c.Name = "martin"
+	input := "cleric"
+	c.ClassPromptWithReader(strings.NewReader(input))
+	if c.Class != input {
+		t.Errorf("ClassPrompt mismatch")
+	}
+}
+
+func TestClassHandler(t *testing.T) {
 	testTrim := "  mage  "
 	testClassPatterns := []string{"rogue","mage","cleric","fighter"}
 	testAntiPatterns := []string{"blaster","vogue","","12345","two words"}
 
 	expectedTrim := "mage"
-	gotTrim := parseClassPrompt(testTrim)
+	gotTrim := classHandler(testTrim)
 	if gotTrim != expectedTrim {
 		t.Errorf("unexpected trim: %s", gotTrim)
 	}
 
 	for _, c := range testClassPatterns {
 		expected := c
-		got := parseClassPrompt(c)
+		got := classHandler(c)
 		if expected != got {
 			t.Errorf("mismatch: expected: %s got: %s", expected, got)
 		}
@@ -23,7 +44,7 @@ func TestParseClassPrompt(t *testing.T) {
 
 	for _, c := range testAntiPatterns {
 		expected := "fighter"
-		got := parseClassPrompt(c)
+		got := classHandler(c)
 		if expected != got {
 			t.Errorf("unexpected result: gave: %s got: %s expected: %s", c, got, expected)
 		}
