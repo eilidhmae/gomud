@@ -73,7 +73,7 @@ func statsHandler(c *Character) {
 }
 
 func helpHandler() {
-	fmt.Println("you can: help,look,inventory,areas,quit")
+	fmt.Println("you can: help,look,inventory,areas,stats,quit")
 }
 
 func inventoryHandler() {
