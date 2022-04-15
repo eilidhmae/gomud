@@ -17,21 +17,9 @@ const welcomeBanner = `
 
 func main() {
 	fmt.Println(welcomeBanner)
-	min := 5
-	max := 18
 	quit := make(chan bool)
 
-	class := mud.ClassPrompt()
-	fmt.Printf("Stats for %10s: %s\n\n", class, mud.RollStats(min, max, class).Text())
-
-	// start a thread handling commands from user
-	go mud.Prompt(quit)
-	
-	// help: displays choices with brief explanation
-	// inventory: display contents of inventory
-	// look: describe current room
-	// north/south/east/west: enter another room in given direction
-	// fight: attack mob in current room (create fight thread that returns to action thread)
-	// wait for quit signal from Prompt()
+	c := mud.Login()
+	go c.Prompt(quit)
 	<-quit
 }

@@ -5,11 +5,19 @@ import (
 	"strings"
 )
 
-func ClassPrompt() string {
+func Login() Character {
+	var name string
+	fmt.Println("Hello adventurer. What is your name?")
+	fmt.Scanln(&name)
+	c := NewCharacter(name)
+	return c
+}
+
+func (c *Character) ClassPrompt() {
 	var class string
-	fmt.Println("Please select a class: [fighter], mage, cleric, rogue")
+	fmt.Printf("Please select a class %s: [fighter], mage, cleric, rogue\n", c.Name)
 	fmt.Scanln(&class)
-	return parseClassPrompt(class)
+	c.Class = parseClassPrompt(class)
 }
 
 func parseClassPrompt(class string) string {
@@ -26,24 +34,26 @@ func parseClassPrompt(class string) string {
 	}
 }
 
-func Prompt(quit chan bool) {
+func (c *Character) Prompt(quit chan bool) {
 	var action string
 	done := make(chan bool)
 	for {
 		fmt.Println("\nWhat would you like to do?")
 		fmt.Scanln(&action)
-		go parsePrompt(quit, done, action)
+		go c.Do(quit, done, action)
 		<-done
 	}
 }
 
-func parsePrompt(quit,done chan bool, action string) {
+func (c *Character) Do(quit,done chan bool, action string) {
 	switch strings.TrimSpace(action) {
 	case "quit":
 		fmt.Println("goodbye adventurer.")
 		quit <- true
 	case "help":
-		fmt.Println("you can: help,look,inventory,quit")
+		fmt.Println("you can: help,look,inventory,quit,stats")
+	case "stats":
+		statsHandler(c)
 	case "inventory":
 		fmt.Println("you ain't got shit.")
 	case "look":
@@ -54,4 +64,8 @@ func parsePrompt(quit,done chan bool, action string) {
 		fmt.Println("not possible.")
 	}
 	done <- true
+}
+
+func statsHandler(c *Character) {
+	fmt.Printf("%s - %s\n%s\n", c.Name, c.Class, c.Stats.Text())
 }

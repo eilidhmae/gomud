@@ -17,7 +17,7 @@ type Stats struct {
 	Cha	int
 }
 
-func RollStats(min,max int, class string) Stats {
+func (c *Character) RollStats(min,max int) {
 	var s Stats
 
 	for i := 0; i < 6; i++ {
@@ -26,7 +26,7 @@ func RollStats(min,max int, class string) Stats {
 	}
 	sort.Sort(sort.Reverse(sort.IntSlice(s.Raw)))
 
-	switch class {
+	switch c.Class {
 	case "fighter":
 		s.Str = s.Raw[0]
 		s.Con = s.Raw[1]
@@ -57,7 +57,7 @@ func RollStats(min,max int, class string) Stats {
 		s.Int = s.Raw[5]
 	}
 
-	return s
+	c.Stats = s
 }
 
 func getRandomStat(min, max int) int {
