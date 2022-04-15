@@ -46,10 +46,8 @@ func (c *Character) Prompt(quit chan bool, errorHandler chan string) {
 }
 
 func commandHandler(action string) (string, error) {
-	trimmed := strings.TrimSpace(action)
 	var c string
-
-	_, err := fmt.Sscanf(trimmed, "%s", &c)
+	_, err := fmt.Sscanf(action, "%s", &c)
 	if err != nil {
 		return "", err
 	}
