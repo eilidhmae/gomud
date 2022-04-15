@@ -17,9 +17,17 @@ const welcomeBanner = `
 
 func main() {
 	fmt.Println(welcomeBanner)
+	errorHandler := make(chan string)
 	quit := make(chan bool)
 
 	c := mud.Login()
-	go c.Prompt(quit)
-	<-quit
+	go c.Prompt(quit, errorHandler)
+	for {
+		select {
+		case <-quit:
+			return
+		case err := <-errorHandler:
+			fmt.Printf("%s\n", err)
+		}
+	}
 }

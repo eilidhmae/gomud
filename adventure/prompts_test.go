@@ -29,3 +29,16 @@ func TestParseClassPrompt(t *testing.T) {
 		}
 	}
 }
+
+func TestCommandHandler(t *testing.T) {
+	expected := "look"
+	action := "look at me"
+
+	got, err := commandHandler(action)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if expected != got {
+		t.Errorf("commandHandler mismatch: expected: %s got: %s", expected, got)
+	}
+}

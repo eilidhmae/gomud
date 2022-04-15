@@ -34,19 +34,35 @@ func parseClassPrompt(class string) string {
 	}
 }
 
-func (c *Character) Prompt(quit chan bool) {
+func (c *Character) Prompt(quit chan bool, errorHandler chan string) {
 	var action string
 	done := make(chan bool)
 	for {
 		fmt.Println("\nWhat would you like to do?")
 		fmt.Scanln(&action)
-		go c.Do(quit, done, action)
+		go c.Do(errorHandler, quit, done, action)
 		<-done
 	}
 }
 
-func (c *Character) Do(quit,done chan bool, action string) {
-	switch strings.TrimSpace(action) {
+func commandHandler(action string) (string, error) {
+	trimmed := strings.TrimSpace(action)
+	var c string
+
+	_, err := fmt.Sscanf(trimmed, "%s", &c)
+	if err != nil {
+		return "", err
+	}
+	return c, nil
+}
+
+func (c *Character) Do(errorHandler chan string, quit,done chan bool, action string) {
+	command, err := commandHandler(action)
+	if err != nil {
+		errorHandler <- fmt.Sprintf("%s", err)
+		action = "INVALID"
+	}
+	switch command {
 	case "quit":
 		fmt.Println("goodbye adventurer.")
 		quit <- true
