@@ -31,14 +31,20 @@ func TestParseClassPrompt(t *testing.T) {
 }
 
 func TestCommandHandler(t *testing.T) {
-	expected := "look"
+	expectedCmd := "look"
+	expectedArgs := []string{"at","me"}
 	action := "look at me"
 
-	got, err := commandHandler(action)
-	if err != nil {
-		t.Fatal(err)
+	cmd, args := commandHandler(action)
+	if expectedCmd != cmd {
+		t.Errorf("commandHandler mismatch: expectedCmd: %s cmd: %s", expectedCmd, cmd)
 	}
-	if expected != got {
-		t.Errorf("commandHandler mismatch: expected: %s got: %s", expected, got)
+	if len(expectedArgs) != len(args) {
+		t.Errorf("args size mismatch")
+	}
+	for i := 0; i < len(args); i++ {
+		if args[i] != expectedArgs[i] {
+			t.Errorf("args mismatch: expected: %s got: %s", expectedArgs[i], args[i])
+		}
 	}
 }
