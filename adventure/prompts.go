@@ -3,20 +3,31 @@ package gomud
 import (
 	"fmt"
 	"strings"
+	"sync"
+	"os"
+	"bufio"
 )
 
+var UserPrompt sync.Mutex
+
 func Login() Character {
-	var name string
+	UserPrompt.Lock()
 	fmt.Println("Hello adventurer. What is your name?")
-	fmt.Scanln(&name)
+	s := bufio.NewScanner(os.Stdin)
+	s.Scan()
+	name := s.Text()
+	UserPrompt.Unlock()
 	c := NewCharacter(name)
 	return c
 }
 
 func (c *Character) ClassPrompt() {
-	var class string
+	UserPrompt.Lock()
 	fmt.Printf("Please select a class %s: [fighter], mage, cleric, rogue\n", c.Name)
-	fmt.Scanln(&class)
+	s := bufio.NewScanner(os.Stdin)
+	s.Scan()
+	class := s.Text()
+	UserPrompt.Unlock()
 	c.Class = parseClassPrompt(class)
 }
 
@@ -35,31 +46,28 @@ func parseClassPrompt(class string) string {
 }
 
 func (c *Character) Prompt(quit chan bool, errorHandler chan string) {
-	var action string
 	done := make(chan bool)
 	for {
+		UserPrompt.Lock()
 		fmt.Println("\nWhat would you like to do?")
-		fmt.Scanln(&action)
+		s := bufio.NewScanner(os.Stdin)
+		s.Scan()
+		action := s.Text()
+		UserPrompt.Unlock()
 		go c.Do(errorHandler, quit, done, action)
 		<-done
 	}
 }
 
-func commandHandler(action string) (string, error) {
-	var c string
-	_, err := fmt.Sscanf(action, "%s", &c)
-	if err != nil {
-		return "", err
-	}
-	return c, nil
+func commandHandler(action string) (string, []string) {
+	w := strings.Split(action, " ")
+	cmd := w[0]
+	args := w[1:]
+	return cmd, args
 }
 
 func (c *Character) Do(errorHandler chan string, quit,done chan bool, action string) {
-	command, err := commandHandler(action)
-	if err != nil {
-		errorHandler <- fmt.Sprintf("%s", err)
-		action = "INVALID"
-	}
+	command, args := commandHandler(action)
 	switch command {
 	case "quit":
 		fmt.Println("goodbye adventurer.")
@@ -76,10 +84,25 @@ func (c *Character) Do(errorHandler chan string, quit,done chan bool, action str
 		areasHandler()
 	case "dance":
 		fmt.Println("shake your booty.")
+	case "get":
+		getHandler(args[0])
 	default:
 		fmt.Println("not possible.")
 	}
 	done <- true
+}
+
+func getHandler(arg string) {
+	switch arg {
+	case "coffee":
+		fmt.Println("you get warm coffee in a fresh mug.")
+	case "mug":
+		fmt.Println("you grab an empty mug, but you don't have any pockets.")
+	case "crate":
+		fmt.Println("it's too heavy.")
+	default:
+		fmt.Println("get what?")
+	}
 }
 
 func statsHandler(c *Character) {
