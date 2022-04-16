@@ -1,0 +1,39 @@
+These area files were taken from merc-mud: https://github.com/alexmchale/merc-mud
+The following README is the beginning of the README found here: https://github.com/alexmchale/merc-mud/blob/master/README
+
+Merc Release 2.1
+Sunday 01 August 1993
+
+Furey	mec@shell.portal.com
+Hatchet	hatchet@uclink.berkeley.edu
+Kahn	michael@uclink.berkeley.edu
+
+
+
+=== Introduction
+
+Merc Diku Mud is a Diku Mud with many enhancements and contributions.  See our
+'contrib.txt' and 'help merc' for acknowledgements.  Send us your contribution,
+and you'll be in there too!
+
+Enjoy our mud.  May your visit here be ... Mercenary.
+
+This is the 2.1 production release of Merc.
+
+
+
+=== Copyright and License
+
+Diku Mud is copyright (C) 1990, 1991 by Sebastian Hammer, Michael Seifert,
+Hans Henrik St{rfeldt, Tom Madsen, and Katja Nyboe.  Their license agreement
+is in the file 'license.doc'.
+
+Merc Diku Mud is a derivative of the original Diku Mud and is subject to their
+copyright and license agreement.  Merc Diku Mud contains substantial
+enhancements to Diku Mud.  These enhancements are copyright 1992, 1993 by
+Michael Chastain, Michael Quan, and Mitchell Tse.  Our license agreement is in
+'license.txt'.
+
+The license terms boil down to this: the people who wrote this mud want due
+credit for their work.
+
