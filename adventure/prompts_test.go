@@ -10,7 +10,10 @@ func TestLogin(t *testing.T) {
 	r := "david"
 	w, _ := os.Open(os.DevNull)
 	defer w.Close()
-	c := Login(strings.NewReader(r), w)
+	c, err := Login(strings.NewReader(r), w)
+	if err != nil {
+		t.Error(err)
+	}
 	if c.Name != r {
 		t.Errorf("Login mismatch")
 	}

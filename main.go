@@ -30,7 +30,10 @@ func main() {
 	defer f.Close()
 	log.SetOutput(f)
 
-	c := mud.LoginWithOS()
+	c, err := mud.LoginWithOS()
+	if err != nil {
+		log.Fatal(err)
+	}
 	go c.PromptWithOS(quit, errorHandler)
 	for {
 		select {

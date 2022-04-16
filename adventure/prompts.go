@@ -8,17 +8,17 @@ import (
 	"strings"
 )
 
-func LoginWithOS() Character {
+func LoginWithOS() (Character, error) {
 	return Login(os.Stdin, os.Stdout)
 }
 
-func Login(r io.Reader, w io.Writer) Character {
+func Login(r io.Reader, w io.Writer) (Character, error) {
 	w.Write([]byte("Hello adventurer. What is your name?\n"))
 	s := bufio.NewScanner(r)
 	s.Scan()
 	name := s.Text()
 	c := NewCharacter(name, r, w)
-	return c
+	return c, nil
 }
 
 func (c *Character) ClassPrompt(r io.Reader, w io.Writer) {
