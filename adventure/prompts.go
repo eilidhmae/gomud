@@ -76,11 +76,14 @@ func commandHandler(action string) (string, []string) {
 	return cmd, args
 }
 
+// Do returns true for quit, and false for any other command
 func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 	command, args := commandHandler(c.Action)
 	c.Mutex.Lock()
 	switch command {
 	case "quit":
+		msg := fmt.Sprintf("Until next time %s!\n", c.Name)
+		w.Write([]byte(msg))
 		return true
 	case "help":
 		w.Write([]byte("you can: areas,get,help,inventory,look,quit,stats\n"))
