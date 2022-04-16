@@ -8,28 +8,45 @@ import (
 	"strings"
 )
 
+func WriteToPlayer(w io.Writer, m string) (int, error) {
+	return w.Write([]byte(m))
+}
+
 func LoginWithOS() (Character, error) {
 	return Login(os.Stdin, os.Stdout)
 }
 
 func Login(r io.Reader, w io.Writer) (Character, error) {
-	w.Write([]byte("Hello adventurer. What is your name?\n"))
+	_, err := WriteToPlayer(w, "Hello adventurer. What is your name?\n")
+	if err != nil {
+		return Character{}, err
+	}
 	s := bufio.NewScanner(r)
 	s.Scan()
 	name := s.Text()
-	c := NewCharacter(name, r, w)
+	c, err := NewCharacter(name, r, w)
+	if err != nil {
+		return Character{}, err
+	}
 	return c, nil
 }
 
-func (c *Character) ClassPrompt(r io.Reader, w io.Writer) {
+func (c *Character) ClassPrompt(r io.Reader, w io.Writer) error {
 	msg := fmt.Sprintf("Please select a class %s: [fighter], mage, cleric, rogue\n", c.Name)
 	c.Mutex.Lock()
-	w.Write([]byte(msg))
+	count, err := WriteToPlayer(w, msg)
+	if err != nil {
+		return err
+	}
+	if count != len(msg) {
+		return fmt.Errorf("ClassPrompt count mismatch: sent: %d recvd: %d", len(msg), count)
+	}
 	s := bufio.NewScanner(r)
 	s.Scan()
 	class := s.Text()
 	c.Mutex.Unlock()
 	c.Class = classHandler(class)
+	return nil
 }
 
 func classHandler(class string) string {
@@ -52,9 +69,16 @@ func (c *Character) PromptWithOS(quit chan bool, errorHandler chan error) {
 
 func (c *Character) Prompt(r io.Reader, w io.Writer, quit chan bool, errorHandler chan error) {
 	errorHandler <- fmt.Errorf("%s the %s has arrived.", c.Name, c.Class)
+	msg := "\nWhat would you like to do?\n"
 	for {
 		c.Mutex.Lock()
-		w.Write([]byte("\nWhat would you like to do?\n"))
+		count, err := WriteToPlayer(w, msg)
+		if err != nil {
+			errorHandler <- err
+		}
+		if count != len(msg) {
+			errorHandler <- fmt.Errorf("Write mismatch Prompt->WriteToPlayer: sent: %d recvd: %d", len(msg), count)
+		}
 		s := bufio.NewScanner(r)
 		s.Scan()
 		c.Action = s.Text()
@@ -85,46 +109,93 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 	switch command {
 	case "quit":
 		msg := fmt.Sprintf("%s once again fades away into the mists of time.\n", c.Name)
-		w.Write([]byte(msg))
+		_, err := WriteToPlayer(w, msg)
+		if err != nil {
+			errorHandler <- err
+		}
 		c.Mutex.Unlock()
 		return true
 	case "help":
-		w.Write([]byte("you can: areas,get,help,inventory,look,quit,stats\n"))
+		_, err := WriteToPlayer(w, "you can: areas,get,help,inventory,look,quit,stats\n")
+		if err != nil {
+			errorHandler <- err
+		}
 	case "stats":
 		msg := fmt.Sprintf("%s the %s\n%s\n", c.Name, c.Class, c.Stats.Text())
-		c.Writer.Write([]byte(msg))
+		_, err := WriteToPlayer(w, msg)
+		if err != nil {
+			errorHandler <- err
+		}
 	case "inventory":
-		w.Write([]byte("you ain't got shit.\n"))
+		_, err := WriteToPlayer(w, "you ain't got shit.\n")
+		if err != nil {
+			errorHandler <- err
+		}
 	case "look":
 		switch args[0] {
 		case "none":
-			w.Write([]byte("There's a tree. it doesn't move much. There's a wooden crate under the tree, and a pot of coffee with clean mugs.\n"))
+			_, err := WriteToPlayer(w,
+			  "There's a tree. it doesn't move much. There's a wooden crate under the tree, and a pot of coffee with clean mugs.\n")
+			if err != nil {
+				errorHandler <- err
+			}
 		case "tree":
-			w.Write([]byte("An old and sturdy tree stands here. Its knotty roots sink deeply into the ground and its broad, leafy branches tame the wind.\n"))
+			_, err := WriteToPlayer(w,
+			  "An old and sturdy tree stands here. Its knotty roots sink deeply into the ground and its broad, leafy branches tame the wind.\n")
+			if err != nil {
+				errorHandler <- err
+			}
 		case "coffee":
-			w.Write([]byte("A shiny pot seems to have an endless supply of coffee. Clean, teal mugs wait to be filled.\n"))
+			_, err := WriteToPlayer(w, "A shiny pot seems to have an endless supply of coffee. Clean, teal mugs wait to be filled.\n")
+			if err != nil {
+				errorHandler <- err
+			}
 		case "crate":
-			w.Write([]byte("An stained crate decorated with a tablecloth serves as a surface for serving coffee.\n"))
+			_, err := WriteToPlayer(w, "An stained crate decorated with a tablecloth serves as a surface for serving coffee.\n")
+			if err != nil {
+				errorHandler <- err
+			}
 		}
 	case "areas":
 		// future support for area files
 		// https://github.com/alexmchale/merc-mud/blob/master/doc/area.txt
-		w.Write([]byte("#AREA	{ 5 35} Eilidh    The Coffeehouse~\n"))
+		_, err := WriteToPlayer(w, "#AREA	{ 5 35} Eilidh    The Coffeehouse~\n")
+		if err != nil {
+			errorHandler <- err
+		}
 	case "dance":
-		w.Write([]byte("shake your booty.\n"))
+		_, err := WriteToPlayer(w, "shake your booty.\n")
+		if err != nil {
+			errorHandler <- err
+		}
 	case "get":
 		switch args[0] {
 		case "coffee":
-			w.Write([]byte("you get warm coffee in a fresh mug.\n"))
+			_, err := WriteToPlayer(w, "you get warm coffee in a fresh mug.\n")
+			if err != nil {
+				errorHandler <- err
+			}
 		case "mug":
-			w.Write([]byte("you grab an empty mug, but you don't have any pockets.\n"))
+			_, err := WriteToPlayer(w, "you grab an empty mug, but you don't have any pockets.\n")
+			if err != nil {
+				errorHandler <- err
+			}
 		case "crate":
-			w.Write([]byte("it's too heavy.\n"))
+			_, err := WriteToPlayer(w, "it's too heavy.\n")
+			if err != nil {
+				errorHandler <- err
+			}
 		default:
-			w.Write([]byte("get what?\n"))
+			_, err := WriteToPlayer(w, "get what?\n")
+			if err != nil {
+				errorHandler <- err
+			}
 		}
 	default:
-		w.Write([]byte("not possible.\n"))
+		_, err := WriteToPlayer(w, "not possible.\n")
+		if err != nil {
+			errorHandler <- err
+		}
 	}
 	c.Mutex.Unlock()
 	return false

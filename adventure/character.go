@@ -10,21 +10,19 @@ type Character struct {
 	Class		string
 	Stats		Stats
 	Action		string
-	Reader		io.Reader
-	Writer		io.Writer
 	Mutex		sync.Mutex
 }
 
-func NewCharacter(name string, r io.Reader, w io.Writer) Character {
+func NewCharacter(name string, r io.Reader, w io.Writer) (Character, error) {
 	min := 8
 	max := 18
 	var c Character
 	c.SetName(name)
-	c.Reader = r
-	c.Writer = w
-	c.ClassPrompt(r, w)
+	if err := c.ClassPrompt(r, w); err != nil {
+		return Character{}, err
+	}
 	c.RollStats(min, max)
-	return c
+	return c, nil
 }
 
 func (c *Character) SetName(name string) {

@@ -97,3 +97,19 @@ func TestDo(t *testing.T) {
 		t.Errorf("quit returned false")
 	}
 }
+
+func TestWriteToPlayer(t *testing.T) {
+	m := "Hello!\n"
+	w, err := os.OpenFile(os.DevNull, os.O_APPEND | os.O_WRONLY, os.ModeAppend)
+	if err !=nil {
+		t.Fatal(err)
+	}
+	defer w.Close()
+	c, err := WriteToPlayer(w, m)
+	if err != nil {
+		t.Error(err)
+	}
+	if c != len(m) {
+		t.Errorf("TestWriteToPlayer count mismatch: sent: %d received %d", len(m), c)
+	}
+}
