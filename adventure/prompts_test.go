@@ -8,7 +8,10 @@ import (
 
 func TestLogin(t *testing.T) {
 	r := "david"
-	w, _ := os.Open(os.DevNull)
+	w, err := os.OpenFile(os.DevNull, os.O_APPEND | os.O_WRONLY, os.ModeAppend)
+	if err != nil {
+		t.Fatal(err)
+	}
 	defer w.Close()
 	c, err := Login(strings.NewReader(r), w)
 	if err != nil {
@@ -23,7 +26,10 @@ func TestClassPrompt(t *testing.T) {
 	var c Character
 	c.Name = "martin"
 	r := "cleric"
-	w, _ := os.Open(os.DevNull)
+	w, err := os.OpenFile(os.DevNull, os.O_APPEND | os.O_WRONLY, os.ModeAppend)
+	if err != nil {
+		t.Fatal(err)
+	}
 	defer w.Close()
 	c.ClassPrompt(strings.NewReader(r), w)
 	if c.Class != r {
@@ -79,12 +85,15 @@ func TestCommandHandler(t *testing.T) {
 }
 
 func TestDo(t *testing.T) {
-	w, _ := os.Open(os.DevNull)
+	w, err := os.OpenFile(os.DevNull, os.O_APPEND | os.O_WRONLY, os.ModeAppend)
+	if err != nil {
+		t.Fatal(err)
+	}
 	defer w.Close()
-	err := make(chan error)
+	ec := make(chan error)
 	var c Character
 	c.Action = "quit"
-	if c.Do(strings.NewReader(""), w, err) != true {
+	if c.Do(strings.NewReader(""), w, ec) != true {
 		t.Errorf("quit returned false")
 	}
 }
