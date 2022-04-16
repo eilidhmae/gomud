@@ -7,7 +7,6 @@ import (
 )
 
 func TestLogin(t *testing.T) {
-	defer quiet()()
 	r := "david"
 	w, _ := os.Open(os.DevNull)
 	defer w.Close()
@@ -18,11 +17,11 @@ func TestLogin(t *testing.T) {
 }
 
 func TestClassPrompt(t *testing.T) {
-	defer quiet()()
 	var c Character
 	c.Name = "martin"
 	r := "cleric"
 	w, _ := os.Open(os.DevNull)
+	defer w.Close()
 	c.ClassPrompt(strings.NewReader(r), w)
 	if c.Class != r {
 		t.Errorf("ClassPrompt mismatch")
@@ -30,7 +29,6 @@ func TestClassPrompt(t *testing.T) {
 }
 
 func TestClassHandler(t *testing.T) {
-	defer quiet()()
 	testTrim := "  mage  "
 	testClassPatterns := []string{"rogue","mage","cleric","fighter"}
 	testAntiPatterns := []string{"blaster","vogue","","12345","two words"}
