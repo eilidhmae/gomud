@@ -96,7 +96,16 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 	case "inventory":
 		w.Write([]byte("you ain't got shit.\n"))
 	case "look":
-		w.Write([]byte("There's a tree. it doesn't move much. There's a wooden crate under the tree, and a pot of coffee with clean mugs.\n"))
+		switch args[0] {
+		case "none":
+			w.Write([]byte("There's a tree. it doesn't move much. There's a wooden crate under the tree, and a pot of coffee with clean mugs.\n"))
+		case "tree":
+			w.Write([]byte("An old and sturdy tree stands here. Its knotty roots sink deeply into the ground and its broad, leafy branches tame the wind.\n"))
+		case "coffee":
+			w.Write([]byte("A shiny pot seems to have an endless supply of coffee. Clean, teal mugs wait to be filled.\n"))
+		case "crate":
+			w.Write([]byte("An stained crate decorated with a tablecloth serves as a surface for serving coffee.\n"))
+		}
 	case "areas":
 		// future support for area files
 		// https://github.com/alexmchale/merc-mud/blob/master/doc/area.txt
