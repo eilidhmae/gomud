@@ -60,6 +60,7 @@ func (c *Character) Prompt(r io.Reader, w io.Writer, quit chan bool, errorHandle
 		c.Mutex.Unlock()
 		if q := c.Do(r, w, errorHandler); q == true {
 			quit <- true
+			break
 		}
 	}
 }
@@ -84,6 +85,7 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 	case "quit":
 		msg := fmt.Sprintf("Until next time %s!\n", c.Name)
 		w.Write([]byte(msg))
+		c.Mutex.Unlock()
 		return true
 	case "help":
 		w.Write([]byte("you can: areas,get,help,inventory,look,quit,stats\n"))
