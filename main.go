@@ -3,7 +3,9 @@ package main
 
 import (
 	"fmt"
+	"log"
 	mud "gomud/adventure"
+	"os"
 )
 
 const welcomeBanner = `
@@ -20,6 +22,14 @@ func main() {
 	errorHandler := make(chan error)
 	quit := make(chan bool)
 
+	// logging
+	f, err := os.OpenFile("mud.log", os.O_RDWR | os.O_CREATE | os.O_APPEND, 0644)
+	if err != nil {
+		log.Fatalf("error opening mud.log: %v", err)
+	}
+	defer f.Close()
+	log.SetOutput(f)
+
 	c := mud.LoginWithOS()
 	go c.PromptWithOS(quit, errorHandler)
 	for {
@@ -27,7 +37,7 @@ func main() {
 		case <-quit:
 			return
 		case err := <-errorHandler:
-			fmt.Printf("%s\n", err)
+			log.Println(err)
 		}
 	}
 }

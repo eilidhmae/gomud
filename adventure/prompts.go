@@ -51,6 +51,7 @@ func (c *Character) PromptWithOS(quit chan bool, errorHandler chan error) {
 }
 
 func (c *Character) Prompt(r io.Reader, w io.Writer, quit chan bool, errorHandler chan error) {
+	errorHandler <- fmt.Errorf("%s the %s has arrived.", c.Name, c.Class)
 	for {
 		c.Mutex.Lock()
 		w.Write([]byte("\nWhat would you like to do?\n"))
@@ -72,7 +73,7 @@ func commandHandler(action string) (string, []string) {
 	if len(w) > 1 {
 		args = w[1:]
 	} else {
-		args = []string{"unknown"}
+		args = []string{"none"}
 	}
 	return cmd, args
 }
@@ -83,7 +84,7 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 	c.Mutex.Lock()
 	switch command {
 	case "quit":
-		msg := fmt.Sprintf("Until next time %s!\n", c.Name)
+		msg := fmt.Sprintf("%s once again fades away into the mists of time.\n", c.Name)
 		w.Write([]byte(msg))
 		c.Mutex.Unlock()
 		return true

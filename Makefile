@@ -5,4 +5,4 @@ test:
 	cd adventure && go test
 
 clean:
-	rm -f gomud
+	rm -f gomud mud.log
