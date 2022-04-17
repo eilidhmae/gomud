@@ -87,7 +87,7 @@ func BuildAreaList(areasPath string) (Arealist, error) {
 
 func (a *Area) Build() error {
 	if a.Data == nil {
-		return fmt.Errorf("BuildRooms: Area %d has no Data.", a.Id)
+		return fmt.Errorf("Build: Area %d has no Data.", a.Id)
 	}
 	s := bufio.NewScanner(bytes.NewReader(*a.Data))
 	// #MOBILES #OBJECTS #ROOMS marks beginning block, #0 marks end of block
@@ -136,9 +136,12 @@ func (a *Area) Build() error {
 		default:
 		}
 	}
-	a.Rooms = &Roomlist{Data: packageBytes(rooms)}
-	a.Objects = &Objlist{Data: packageBytes(objects)}
-	a.Mobiles = &Moblist{Data: packageBytes(mobiles)}
+	a.Rooms = &Roomlist{}
+	a.Rooms.Data = packageBytes(rooms)
+	a.Objects = &Objlist{}
+	a.Objects.Data = packageBytes(objects)
+	a.Mobiles = &Moblist{}
+	a.Mobiles.Data = packageBytes(mobiles)
 	return nil
 }
 
