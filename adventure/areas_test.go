@@ -28,4 +28,7 @@ func TestBuildAreaList(t *testing.T) {
 	if expectedCount != al.Count {
 		t.Errorf("index size mismatch: expected: %d got: %d", expectedCount, al.Count)
 	}
+	if al.Tail.Data == nil {
+		t.Errorf("No Data for al.Tail")
+	}
 }

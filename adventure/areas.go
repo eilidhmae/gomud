@@ -2,6 +2,8 @@ package gomud
 
 import (
 	"bufio"
+	"bytes"
+	"io/ioutil"
 	"os"
 	"regexp"
 	"strings"
@@ -10,6 +12,7 @@ import (
 type Area struct {
 	Id		int
 	Title		string
+	Data		*[]byte
 	Next		*Area
 	Previous	*Area
 }
@@ -54,12 +57,11 @@ func BuildAreaList(areasPath string) (Arealist, error) {
 	for scanner.Scan() {
 		filename := scanner.Text()
 		if filename != "$" {
-			handler, err := os.Open(areasPath + filename)
+			content, err := ioutil.ReadFile(areasPath + filename)
 			if err != nil {
 				return al, err
 			}
-			defer handler.Close()
-			r := bufio.NewReader(handler)
+			r := bufio.NewReader(bytes.NewReader(content))
 			t, err := r.ReadString('\n')
 			if err != nil {
 				return al, err
@@ -71,6 +73,7 @@ func BuildAreaList(areasPath string) (Arealist, error) {
 			if matched {
 				title := strings.TrimLeft(t, "#AREA\t")
 				a := Area{Title: title}
+				a.Data = &content
 				al.Add(&a)
 			}
 		}
