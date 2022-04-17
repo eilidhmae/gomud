@@ -164,11 +164,17 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 	case "areas":
 		cur := c.Arealist.Head
 		for cur.Next != nil {
-			_, err := WriteToPlayer(w, cur.Title)
+			msg := fmt.Sprintf("%2d %s", cur.Id, cur.Title)
+			_, err := WriteToPlayer(w, msg)
 			if err != nil {
 				errorHandler <- err
 			}
 			cur = cur.Next
+		}
+		msg := fmt.Sprintf("%2d %s", cur.Id, cur.Title)
+		_, err := WriteToPlayer(w, msg)
+		if err != nil {
+			errorHandler <- err
 		}
 	case "dance":
 		_, err := WriteToPlayer(w, "shake your booty.\n")
