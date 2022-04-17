@@ -269,6 +269,7 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 		_, err := WriteToPlayer(w, "not possible.\n")
 		if err != nil {
 			errorHandler <- err
+			err = nil
 		}
 	}
 	c.Mutex.Unlock()
