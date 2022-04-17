@@ -150,3 +150,17 @@ func packageBytes(lines []string) *[]byte {
 	b := []byte(stream)
 	return &b
 }
+
+func (al *Arealist) Lookup(index int) *Area {
+	if index > al.Count {
+		return al.Tail
+	}
+	if index < 1 {
+		return al.Head
+	}
+	cur := al.Head
+	for cur.Id < index {
+		cur = cur.Next
+	}
+	return cur
+}
