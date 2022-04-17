@@ -20,28 +20,6 @@ func TestText(t *testing.T) {
 	}
 }
 
-func TestGetRandomStat(t *testing.T) {
-	low := 1
-	high := 20
-	for i := 1; i <= 100; i++ {
-		result := getRandomStat(low, high)
-		if result < low {
-			t.Errorf("result too low")
-		}
-		if result > high {
-			t.Errorf("result too high")
-		}
-	}
-
-	flipped := getRandomStat(high, low)
-	if flipped < low {
-		t.Errorf("flipped too low")
-	}
-	if flipped > high {
-		t.Errorf("flipped too high")
-	}
-}
-
 func TestRollStats(t *testing.T) {
 	min := 5
 	max := 18

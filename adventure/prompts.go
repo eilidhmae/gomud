@@ -6,7 +6,6 @@ import (
 	"io"
 	"os"
 	"strconv"
-	"strings"
 )
 
 func WriteToPlayer(w io.Writer, m string) (int, error) {
@@ -55,20 +54,6 @@ func (c *Character) ClassPrompt(r io.Reader, w io.Writer) error {
 	return nil
 }
 
-func classHandler(class string) string {
-	t := strings.TrimSpace(class)
-	switch t {
-	case "mage":
-		return t
-	case "cleric":
-		return t
-	case "rogue":
-		return t
-	default:
-		return "fighter"
-	}
-}
-
 func (c *Character) PromptWithOS(quit chan bool, errorHandler chan error) {
 	go c.Prompt(os.Stdin, os.Stdout, quit, errorHandler)
 }
@@ -94,18 +79,6 @@ func (c *Character) Prompt(r io.Reader, w io.Writer, quit chan bool, errorHandle
 			break
 		}
 	}
-}
-
-func commandHandler(action string) (string, []string) {
-	var args []string
-	w := strings.Split(action, " ")
-	cmd := w[0]
-	if len(w) > 1 {
-		args = w[1:]
-	} else {
-		args = []string{"none"}
-	}
-	return cmd, args
 }
 
 // Do returns true for quit, and false for any other command

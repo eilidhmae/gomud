@@ -3,8 +3,6 @@ package gomud
 import (
 	"fmt"
 	"sort"
-	"time"
-	"math/rand"
 )
 
 type Stats struct {
@@ -58,16 +56,6 @@ func (c *Character) RollStats(min,max int) {
 	}
 
 	c.Stats = s
-}
-
-func getRandomStat(min, max int) int {
-	if min > max {
-		t := max
-		max = min
-		min = t
-	}
-	rand.Seed(time.Now().UnixNano())
-	return rand.Intn(max - min + 1) + min
 }
 
 func (s Stats) Text() string {

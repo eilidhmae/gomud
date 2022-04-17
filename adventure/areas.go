@@ -145,15 +145,6 @@ func (a *Area) Build() error {
 	return nil
 }
 
-func packageBytes(lines []string) *[]byte {
-	var stream string
-	for _, l := range lines {
-		stream = stream + l + "\n"
-	}
-	b := []byte(stream)
-	return &b
-}
-
 func (al *Arealist) Lookup(index int) *Area {
 	if index > al.Count {
 		return al.Tail
