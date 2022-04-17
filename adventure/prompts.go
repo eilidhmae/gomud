@@ -66,6 +66,7 @@ func (c *Character) Prompt(r io.Reader, w io.Writer, quit chan bool, errorHandle
 		count, err := WriteToPlayer(w, msg)
 		if err != nil {
 			errorHandler <- err
+			err = nil
 		}
 		if count != len(msg) {
 			errorHandler <- fmt.Errorf("Write mismatch Prompt->WriteToPlayer: sent: %d recvd: %d", len(msg), count)
@@ -103,6 +104,7 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 		_, err := WriteToPlayer(w, msg)
 		if err != nil {
 			errorHandler <- err
+			err = nil
 		}
 		c.Mutex.Unlock()
 		return true
@@ -110,12 +112,14 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 		_, err := WriteToPlayer(w, "you can: areas,get,help,inventory,look,quit,stats\n")
 		if err != nil {
 			errorHandler <- err
+			err = nil
 		}
 	case "stats":
 		msg := fmt.Sprintf("%s the %s\n%s\n", c.Name, c.Class, c.Stats.Text())
 		_, err := WriteToPlayer(w, msg)
 		if err != nil {
 			errorHandler <- err
+			err = nil
 		}
 	case "inventory", "inv", "i":
 		if c.Inventory.Head == nil {
@@ -151,6 +155,7 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 			  "There's a tree. it doesn't move much. There's a wooden crate under the tree, and a pot of coffee with clean mugs.\n")
 			if err != nil {
 				errorHandler <- err
+				err = nil
 			}
 		case "tree":
 			_, err := WriteToPlayer(w,
@@ -158,16 +163,19 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 			  "A leaf flutters to the ground as the large branches attempt to tame the wind.\n")
 			if err != nil {
 				errorHandler <- err
+				err = nil
 			}
 		case "coffee":
 			_, err := WriteToPlayer(w, "A shiny pot seems to have an endless supply of coffee. Clean, teal mugs wait to be filled.\n")
 			if err != nil {
 				errorHandler <- err
+				err = nil
 			}
 		case "crate":
 			_, err := WriteToPlayer(w, "An stained crate decorated with a tablecloth serves as a surface for serving coffee.\n")
 			if err != nil {
 				errorHandler <- err
+				err = nil
 			}
 		}
 	case "areas":
@@ -177,6 +185,7 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 			_, err := WriteToPlayer(w, msg)
 			if err != nil {
 				errorHandler <- err
+				err = nil
 			}
 			cur = cur.Next
 		}
@@ -184,11 +193,13 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 		_, err := WriteToPlayer(w, msg)
 		if err != nil {
 			errorHandler <- err
+			err = nil
 		}
 	case "dance":
 		_, err := WriteToPlayer(w, "shake your booty.\n")
 		if err != nil {
 			errorHandler <- err
+			err = nil
 		}
 	case "get":
 		switch args[0] {
@@ -196,6 +207,7 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 			_, err := WriteToPlayer(w, "you get warm coffee in a fresh mug.\n")
 			if err != nil {
 				errorHandler <- err
+				err = nil
 			}
 			o := Object{Desc: "a mug of warm coffee"}
 			if c.Inventory.Head == nil {
@@ -219,11 +231,13 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 			_, err := WriteToPlayer(w, "it's too heavy.\n")
 			if err != nil {
 				errorHandler <- err
+				err = nil
 			}
 		default:
 			_, err := WriteToPlayer(w, "get what?\n")
 			if err != nil {
 				errorHandler <- err
+				err = nil
 			}
 		}
 	case "goto":
