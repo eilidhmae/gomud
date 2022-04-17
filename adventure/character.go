@@ -13,6 +13,7 @@ type Character struct {
 	Mutex		sync.Mutex
 	Arealist	Arealist
 	Inventory	Objlist
+	Cursor		string
 }
 
 func NewCharacter(name string, r io.Reader, w io.Writer) (Character, error) {
@@ -20,6 +21,7 @@ func NewCharacter(name string, r io.Reader, w io.Writer) (Character, error) {
 	max := 18
 	var c Character
 	c.SetName(name)
+	c.SetCursor("What would you like to do?\n")
 	if err := c.ClassPrompt(r, w); err != nil {
 		return Character{}, err
 	}
@@ -29,4 +31,8 @@ func NewCharacter(name string, r io.Reader, w io.Writer) (Character, error) {
 
 func (c *Character) SetName(name string) {
 	c.Name = name
+}
+
+func (c *Character) SetCursor(cursor string) {
+	c.Cursor = cursor
 }

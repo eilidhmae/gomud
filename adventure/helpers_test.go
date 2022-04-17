@@ -86,3 +86,12 @@ func TestGetRandomStat(t *testing.T) {
 		t.Errorf("flipped too high")
 	}
 }
+
+func TestJoinArgs(t *testing.T) {
+	args := []string{"one","two","three"}
+	expected := "one two three"
+	got := joinArgs(args)
+	if got != expected {
+		t.Errorf("joinArgs mismatch: got: %s expected: %s", got, expected)
+	}
+}

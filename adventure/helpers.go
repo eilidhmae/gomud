@@ -6,9 +6,15 @@ import (
 	"time"
 )
 
+const SPLIT_CHAR string = ` `
+
 func packageBytes(lines []string) *[]byte {
 	b := []byte(strings.Join(lines, "\n"))
 	return &b
+}
+
+func joinArgs(args []string) string {
+	return strings.Join(args, SPLIT_CHAR)
 }
 
 func classHandler(class string) string {
@@ -27,7 +33,7 @@ func classHandler(class string) string {
 
 func commandHandler(action string) (string, []string) {
 	var args []string
-	w := strings.Split(action, " ")
+	w := strings.Split(action, SPLIT_CHAR)
 	cmd := w[0]
 	if len(w) > 1 {
 		args = w[1:]

@@ -60,16 +60,15 @@ func (c *Character) PromptWithOS(quit chan bool, errorHandler chan error) {
 
 func (c *Character) Prompt(r io.Reader, w io.Writer, quit chan bool, errorHandler chan error) {
 	errorHandler <- fmt.Errorf("%s the %s has arrived.", c.Name, c.Class)
-	msg := "\nWhat would you like to do?\n"
 	for {
 		c.Mutex.Lock()
-		count, err := WriteToPlayer(w, msg)
+		count, err := WriteToPlayer(w, "\n" + c.Cursor)
 		if err != nil {
 			errorHandler <- err
 			err = nil
 		}
-		if count != len(msg) {
-			errorHandler <- fmt.Errorf("Write mismatch Prompt->WriteToPlayer: sent: %d recvd: %d", len(msg), count)
+		if count != len(c.Cursor) {
+			errorHandler <- fmt.Errorf("custom Cursor len mismatch: sent: %d recvd: %d", len(c.Cursor), count)
 		}
 		s := bufio.NewScanner(r)
 		s.Scan()
@@ -109,7 +108,7 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 		c.Mutex.Unlock()
 		return true
 	case "help":
-		_, err := WriteToPlayer(w, "you can: areas,get,help,inventory,look,quit,stats\n")
+		_, err := WriteToPlayer(w, "you can: areas,get,help,inventory,look,prompt,quit,stats\n")
 		if err != nil {
 			errorHandler <- err
 			err = nil
@@ -259,6 +258,12 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 				errorHandler <- err
 				err = nil
 			}
+		}
+	case "prompt":
+		cursor := joinArgs(args)
+		c.SetCursor(cursor)
+		if cursor == "fancy" {
+			c.SetCursor(fmt.Sprintf("%s the %s-> ", c.Name, c.Class))
 		}
 	default:
 		_, err := WriteToPlayer(w, "not possible.\n")
