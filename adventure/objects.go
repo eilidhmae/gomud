@@ -2,7 +2,7 @@ package gomud
 
 type Object struct {
 	Id		int
-	Title		string
+	Desc		string
 	Area		*Area
 	Next		*Object
 	Previous	*Object

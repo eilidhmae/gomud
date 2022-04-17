@@ -4,6 +4,8 @@ type Room struct {
 	Id		int
 	Title		string
 	Area		*Area
+	Objects		*Objlist
+	Mobiles		*Moblist
 	Next		*Room
 	Previous	*Room
 }

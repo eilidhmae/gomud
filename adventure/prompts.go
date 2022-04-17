@@ -81,12 +81,24 @@ func (c *Character) Prompt(r io.Reader, w io.Writer, quit chan bool, errorHandle
 	}
 }
 
-// Do returns true for quit, and false for any other command
+/* Do returns true for quit, and false for any other command.
+ * Currently, many player actions are hard-coded here which means
+ * the system is not extensible without a new deployment and restart.
+ * Eventually, action logic should be moved to commandHandler().
+ * Then commandHandler() should determine types of actions like
+ * emotes, skills, look, get, etc. Some very basic items like 'help'
+ * and 'commands' could be kept here if they are considered core commands.
+ * There's a strong case to even factor out emotes into a separate
+ * handler because anything factored out can be driven by a file
+ * on the host filesystem. Emotes, actions and skills could be added
+ * by modifying a file and using a command within the realm to read
+ * those config files again without a restart.
+ */
 func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 	command, args := commandHandler(c.Action)
 	c.Mutex.Lock()
 	switch command {
-	case "quit":
+	case "quit", "q":
 		msg := fmt.Sprintf("%s once again fades away into the mists of time.\n", c.Name)
 		_, err := WriteToPlayer(w, msg)
 		if err != nil {
@@ -105,12 +117,34 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 		if err != nil {
 			errorHandler <- err
 		}
-	case "inventory":
-		_, err := WriteToPlayer(w, "you ain't got shit.\n")
-		if err != nil {
-			errorHandler <- err
+	case "inventory", "inv", "i":
+		if c.Inventory.Head == nil {
+			_, err := WriteToPlayer(w, "you ain't got shit.\n")
+			if err != nil {
+				errorHandler <- err
+				err = nil
+			}
+		} else {
+			cur := c.Inventory.Head
+			_, err := WriteToPlayer(w, "inventory:\n")
+			if err != nil {
+				errorHandler <- err
+				err = nil
+			}
+			for cur != nil {
+				_, err := WriteToPlayer(w, fmt.Sprintf("%s\n", cur.Desc))
+				if err != nil {
+					errorHandler <- err
+					err = nil
+				}
+				if cur.Next != nil {
+					cur = cur.Next
+				} else {
+					cur = nil
+				}
+			}
 		}
-	case "look":
+	case "look", "l":
 		switch args[0] {
 		case "none":
 			_, err := WriteToPlayer(w,
@@ -120,7 +154,8 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 			}
 		case "tree":
 			_, err := WriteToPlayer(w,
-			  "An old and sturdy tree stands here. Its knotty roots sink deeply into the ground and its broad, leafy branches tame the wind.\n")
+			  "An old and sturdy tree stands here. Its knotty roots sink deeply into the ground.\n" +
+			  "A leaf flutters to the ground as the large branches attempt to tame the wind.\n")
 			if err != nil {
 				errorHandler <- err
 			}
@@ -157,15 +192,28 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 		}
 	case "get":
 		switch args[0] {
-		case "coffee":
+		case "coffee", "mug":
 			_, err := WriteToPlayer(w, "you get warm coffee in a fresh mug.\n")
 			if err != nil {
 				errorHandler <- err
 			}
-		case "mug":
-			_, err := WriteToPlayer(w, "you grab an empty mug, but you don't have any pockets.\n")
+			o := Object{Desc: "a mug of warm coffee"}
+			if c.Inventory.Head == nil {
+				c.Inventory = NewObjlist(&o)
+			} else {
+				c.Inventory.Add(&o)
+			}
+		case "leaf":
+			_, err := WriteToPlayer(w, "you pick up a leaf.\n")
 			if err != nil {
 				errorHandler <- err
+				err = nil
+			}
+			o := Object{Desc: "a leaf"}
+			if c.Inventory.Head == nil {
+				c.Inventory = NewObjlist(&o)
+			} else {
+				c.Inventory.Add(&o)
 			}
 		case "crate":
 			_, err := WriteToPlayer(w, "it's too heavy.\n")

@@ -12,6 +12,7 @@ type Character struct {
 	Action		string
 	Mutex		sync.Mutex
 	Arealist	Arealist
+	Inventory	Objlist
 }
 
 func NewCharacter(name string, r io.Reader, w io.Writer) (Character, error) {
