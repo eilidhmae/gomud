@@ -16,14 +16,14 @@ type Moblist struct {
 	Current		*Mobile
 }
 
-func (rl *Moblist) Add(p *Mobile) int {
-	old := rl.Tail
+func (l *Moblist) Add(p *Mobile) int {
+	old := l.Tail
 	old.Next = p
 	p.Previous = old
 	p.Id = old.Id + 1
-	rl.Count = p.Id
-	rl.Tail = p
-	return rl.Count
+	l.Count = p.Id
+	l.Tail = p
+	return l.Count
 }
 
 func NewMoblist(p *Mobile) Moblist {
