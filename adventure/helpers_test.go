@@ -3,10 +3,11 @@ package gomud
 import "testing"
 
 func TestPackageBytes(t *testing.T) {
-	msg := []string{"this is the song that never ends."," it just goes on and on my friends.",
-			" some people started singing it not knowing what it was",
-			" and they'll continue singing it forever just because"}
-	expected := []byte("this is the song that never ends. it just goes on and on my friends. some people started singing it not knowing what it was and they'll continue singing it forever just because")
+	msg := []string{"this is the song that never ends.",
+			"it just goes on and on my friends.",
+			"some people started singing it not knowing what it was",
+			"and they'll continue singing it forever just because"}
+	expected := []byte("this is the song that never ends.\nit just goes on and on my friends.\nsome people started singing it not knowing what it was\nand they'll continue singing it forever just because")
 
 	p := packageBytes(msg)
 	if p == nil {

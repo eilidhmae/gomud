@@ -7,7 +7,7 @@ import (
 )
 
 func packageBytes(lines []string) *[]byte {
-	b := []byte(strings.Join(lines, ""))
+	b := []byte(strings.Join(lines, "\n"))
 	return &b
 }
 
