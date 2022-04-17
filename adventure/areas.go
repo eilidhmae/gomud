@@ -32,16 +32,17 @@ func (al *Arealist) Add(p *Area) int {
 	return al.Count
 }
 
-func BuildAreaList(areasPath string) (Arealist, error) {
-	al := Arealist{
+func NewArealist(p *Area) Arealist {
+	return Arealist{
 		Count:		1,
-		Head:		&Area{
-					Id:		1,
-					Title:		"{ 1 35} Eilidh\tThe Coffeehouse~\n",
-					Next:		nil,
-					Previous:	nil,
-				},
+		Head:		p,
+		Tail:		p,
+		Current:	nil,
 	}
+}
+
+func BuildAreaList(areasPath string) (Arealist, error) {
+	al := NewArealist(&Area{Id: 1,Title: "{ 1 35} Eilidh\tThe Coffeehouse~\n"})
 	al.Tail = al.Head
 	al.Current = al.Head
 	fh, err := os.Open(areasPath + "area.lst")

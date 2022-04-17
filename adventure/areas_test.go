@@ -3,11 +3,7 @@ package gomud
 import "testing"
 
 func TestArealistAdd(t *testing.T) {
-	var al Arealist
-	al.Count = 1
-	al.Head = &Area{Title: "test area 1",Id: 1}
-	al.Tail = al.Head
-
+	al := NewArealist(&Area{Title: "test area 1",Id: 1})
 	c := al.Add(&Area{Title: "test area 2"})
 	if c != 2 {
 		t.Errorf("Area count mismatch: expected: 2 got: %d", c)
