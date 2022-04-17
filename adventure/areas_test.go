@@ -32,3 +32,18 @@ func TestBuildAreaList(t *testing.T) {
 		t.Errorf("No Data for al.Tail")
 	}
 }
+
+func TestBuild(t *testing.T) {
+	areasPath := "../areas/"
+	al, err := BuildAreaList(areasPath)
+	if err != nil {
+		t.Error(err)
+	}
+	cur := al.Head
+	for cur.Data == nil {
+		cur = cur.Next
+	}
+	if err := cur.Build(); err != nil {
+		t.Errorf("Area.Build: %s", err)
+	}
+}

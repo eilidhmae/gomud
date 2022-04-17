@@ -1,22 +1,22 @@
 package gomud
 
-type Room struct {
+type Object struct {
 	Id		int
 	Title		string
 	Area		*Area
-	Next		*Room
-	Previous	*Room
+	Next		*Object
+	Previous	*Object
 }
 
-type Roomlist struct {
+type Objlist struct {
 	Count		int
 	Data		*[]byte
-	Head		*Room
-	Tail		*Room
-	Current		*Room
+	Head		*Object
+	Tail		*Object
+	Current		*Object
 }
 
-func (rl *Roomlist) Add(p *Room) int {
+func (rl *Objlist) Add(p *Object) int {
 	old := rl.Tail
 	old.Next = p
 	p.Previous = old
@@ -26,8 +26,8 @@ func (rl *Roomlist) Add(p *Room) int {
 	return rl.Count
 }
 
-func NewRoomlist(p *Room) Roomlist {
-	return Roomlist{
+func NewObjlist(p *Object) Objlist {
+	return Objlist{
 		Count:		1,
 		Head:		p,
 		Tail:		p,
