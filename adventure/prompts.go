@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -202,6 +203,26 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 			_, err := WriteToPlayer(w, "get what?\n")
 			if err != nil {
 				errorHandler <- err
+			}
+		}
+	case "goto":
+		index, err := strconv.Atoi(string(args[0]))
+		if err != nil {
+			errorHandler <- err
+			err = nil
+		}
+		cur := c.Arealist.Lookup(index)
+		c.Arealist.Current = cur
+		if err := cur.Build(); err != nil {
+			errorHandler <- err
+			err = nil
+		}
+		if cur.Rooms != nil {
+			msg := fmt.Sprintf("%s\n", cur.Rooms.Data)
+			_, err = WriteToPlayer(w, msg)
+			if err != nil {
+				errorHandler <- err
+				err = nil
 			}
 		}
 	default:
