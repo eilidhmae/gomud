@@ -8,12 +8,13 @@ import (
 
 func TestLogin(t *testing.T) {
 	r := "david"
+	areasPath := "../areas/"
 	w, err := os.OpenFile(os.DevNull, os.O_APPEND | os.O_WRONLY, os.ModeAppend)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer w.Close()
-	c, err := Login(strings.NewReader(r), w)
+	c, err := Login(strings.NewReader(r), w, areasPath)
 	if err != nil {
 		t.Error(err)
 	}

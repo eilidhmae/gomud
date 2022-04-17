@@ -11,6 +11,7 @@ type Character struct {
 	Stats		Stats
 	Action		string
 	Mutex		sync.Mutex
+	Arealist	Arealist
 }
 
 func NewCharacter(name string, r io.Reader, w io.Writer) (Character, error) {

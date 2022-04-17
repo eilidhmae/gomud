@@ -30,7 +30,7 @@ func main() {
 	defer f.Close()
 	log.SetOutput(f)
 
-	c, err := mud.LoginWithOS()
+	c, err := mud.LoginWithOS("areas/")
 	if err != nil {
 		log.Fatal(err)
 	}

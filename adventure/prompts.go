@@ -12,11 +12,11 @@ func WriteToPlayer(w io.Writer, m string) (int, error) {
 	return w.Write([]byte(m))
 }
 
-func LoginWithOS() (Character, error) {
-	return Login(os.Stdin, os.Stdout)
+func LoginWithOS(areasPath string) (Character, error) {
+	return Login(os.Stdin, os.Stdout, areasPath)
 }
 
-func Login(r io.Reader, w io.Writer) (Character, error) {
+func Login(r io.Reader, w io.Writer, areasPath string) (Character, error) {
 	_, err := WriteToPlayer(w, "Hello adventurer. What is your name?\n")
 	if err != nil {
 		return Character{}, err
@@ -28,6 +28,11 @@ func Login(r io.Reader, w io.Writer) (Character, error) {
 	if err != nil {
 		return Character{}, err
 	}
+	al, err := BuildAreaList(areasPath)
+	if err != nil {
+		return Character{}, err
+	}
+	c.Arealist = al
 	return c, nil
 }
 
@@ -157,11 +162,13 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 			}
 		}
 	case "areas":
-		// future support for area files
-		// https://github.com/alexmchale/merc-mud/blob/master/doc/area.txt
-		_, err := WriteToPlayer(w, "#AREA	{ 5 35} Eilidh    The Coffeehouse~\n")
-		if err != nil {
-			errorHandler <- err
+		cur := c.Arealist.Head
+		for cur.Next != nil {
+			_, err := WriteToPlayer(w, cur.Title)
+			if err != nil {
+				errorHandler <- err
+			}
+			cur = cur.Next
 		}
 	case "dance":
 		_, err := WriteToPlayer(w, "shake your booty.\n")
