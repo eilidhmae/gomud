@@ -67,7 +67,7 @@ func (c *Character) Prompt(r io.Reader, w io.Writer, quit chan bool, errorHandle
 			errorHandler <- err
 			err = nil
 		}
-		if count != len(c.Cursor) {
+		if count != len(c.Cursor) + 1 {
 			errorHandler <- fmt.Errorf("custom Cursor len mismatch: sent: %d recvd: %d", len(c.Cursor), count)
 		}
 		s := bufio.NewScanner(r)
