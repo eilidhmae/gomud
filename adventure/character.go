@@ -1,11 +1,14 @@
 package gomud
 
 import (
+	"bufio"
 	"io"
 	"os"
 	"sync"
 	"encoding/json"
 )
+
+const PLAYER_SAVE_EXT string = ".save"
 
 type Character struct {
 	Name		string		`json:"name"`
@@ -35,6 +38,52 @@ func NewCharacter(name string, r io.Reader, w io.Writer) (Character, error) {
 	return c, nil
 }
 
+func LoadCharacter(name string) (Character, error) {
+	var c Character
+	var inventory []string
+	var objs Objlist
+	loc, err := findPlayerFiles()		// loc is absolute filepath with ending slash
+	if err != nil {
+		return c, err
+	}
+	fh, err := os.OpenFile(loc + name + PLAYER_SAVE_EXT, os.O_RDONLY, 0644)
+	if err != io.EOF {
+		if err != nil {
+			return c, err
+		}
+	}
+	defer fh.Close()
+	b := bufio.NewReader(fh)
+	charData, _, err := b.ReadLine()
+	if err != nil {
+		return c, err
+	}
+	var invData []byte
+	if b.Buffered() > 1 {
+		invData, _, err = b.ReadLine()
+		if err != nil {
+			return c, err
+		}
+	}
+	if err := json.Unmarshal(charData, &c); err != nil {
+		return c, err
+	}
+	if invData != nil {
+		if err := json.Unmarshal(invData, &inventory); err != nil {
+			return c, err
+		}
+		for id, desc := range inventory {
+			switch {
+			case id == 0:
+				objs = NewObjlist(&Object{Id: id, Desc: desc})
+			default:
+				objs.Add(&Object{Id: id, Desc: desc})
+			}
+		}
+	}
+	return c, nil
+}
+
 func (c *Character) SetName(name string) {
 	c.Name = name
 }
@@ -56,7 +105,7 @@ func (c *Character) Save() error {
 	if err != nil {
 		return err
 	}
-	fh, err := os.Create(location + c.Name + ".save")
+	fh, err := os.Create(location + c.Name + PLAYER_SAVE_EXT)
 	if err != nil {
 		return err
 	}
