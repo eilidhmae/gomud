@@ -119,3 +119,15 @@ func TestGetCharacterData(t *testing.T) {
 		t.Errorf("getCharacterData: unexpected payload size: %d", len(data[0]))
 	}
 }
+
+func TestFindPlayerFiles(t *testing.T) {
+	loc, err := findPlayerFiles()
+	if err != nil {
+		t.Error(err)
+	}
+	if loc == "" {
+		if err == nil {
+			t.Errorf("findPlayerFiles response is empty, but error was nil.")
+		}
+	}
+}
