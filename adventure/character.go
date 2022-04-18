@@ -14,6 +14,7 @@ type Character struct {
 	Arealist	Arealist
 	Inventory	Objlist
 	Cursor		string
+	Level		int
 }
 
 func NewCharacter(name string, r io.Reader, w io.Writer) (Character, error) {
@@ -22,6 +23,7 @@ func NewCharacter(name string, r io.Reader, w io.Writer) (Character, error) {
 	var c Character
 	c.SetName(name)
 	c.SetCursor("What would you like to do?\n")
+	c.Level = 1
 	if err := c.ClassPrompt(r, w); err != nil {
 		return Character{}, err
 	}

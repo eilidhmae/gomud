@@ -115,7 +115,7 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 			err = nil
 		}
 	case "stats":
-		msg := fmt.Sprintf("%s the %s\n%s\n", c.Name, c.Class, c.Stats.Text())
+		msg := fmt.Sprintf("%s the %s. (Level %d)\n%s\n", c.Name, c.Class, c.Level, c.Stats.Text())
 		_, err := WriteToPlayer(w, msg)
 		if err != nil {
 			errorHandler <- err
