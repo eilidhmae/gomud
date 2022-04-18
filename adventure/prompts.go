@@ -6,7 +6,6 @@ import (
 	"io"
 	"os"
 	"regexp"
-	"strconv"
 )
 
 func WriteToPlayer(w io.Writer, m string) (int, error) {
@@ -43,11 +42,11 @@ func Login(r io.Reader, w io.Writer, areasPath string) (Character, error) {
 		}
 		char = c
 	}
-	l, err := BuildAreaList(areasPath)
+	realm, err := BuildRealm(areasPath)
 	if err != nil {
 		return char, err
 	}
-	char.Arealist = l
+	char.Realm = realm
 	return char, nil
 }
 
@@ -150,7 +149,7 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 				err = nil
 			}
 			for cur != nil {
-				_, err := WriteToPlayer(w, fmt.Sprintf("%s\n", cur.Desc))
+				_, err := WriteToPlayer(w, fmt.Sprintf("%s\n", *cur.Data))
 				if err != nil {
 					errorHandler <- err
 					err = nil
@@ -171,7 +170,7 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 				err = nil
 			}
 		case "coffee", "mug":
-			if c.Inventory.HasObject(args[0]) {
+			if _, m := c.Inventory.HasData(args[0]); m == true {
 				_, err := WriteToPlayer(w, "you drink coffee from a mug.\n")
 				if err != nil {
 					errorHandler <- err
@@ -237,21 +236,16 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 			}
 		}
 	case "areas":
-		cur := c.Arealist.Head
-		for cur.Next != nil {
-			msg := fmt.Sprintf("%2d %s", cur.Id, cur.Title)
+		a := c.Realm.Areas
+		cur := a.Head
+		for cur != nil {
+			msg := fmt.Sprintf("%2d %s", cur.Id, cur.Name)
 			_, err := WriteToPlayer(w, msg)
 			if err != nil {
 				errorHandler <- err
 				err = nil
 			}
 			cur = cur.Next
-		}
-		msg := fmt.Sprintf("%2d %s", cur.Id, cur.Title)
-		_, err := WriteToPlayer(w, msg)
-		if err != nil {
-			errorHandler <- err
-			err = nil
 		}
 	case "dance":
 		_, err := WriteToPlayer(w, "shake your booty.\n")
@@ -267,11 +261,11 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 				errorHandler <- err
 				err = nil
 			}
-			o := Object{Desc: "a mug of warm coffee"}
+			data := []byte("a mug of warm coffee")
 			if c.Inventory.Head == nil {
-				c.Inventory = NewObjlist(&o)
+				c.Inventory = NewTree(NewNode(data))
 			} else {
-				c.Inventory.Add(&o)
+				c.Inventory.Add(NewNode(data))
 			}
 		case "leaf":
 			_, err := WriteToPlayer(w, "you pick up a leaf.\n")
@@ -279,11 +273,11 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 				errorHandler <- err
 				err = nil
 			}
-			o := Object{Desc: "a leaf"}
+			data := []byte("a leaf")
 			if c.Inventory.Head == nil {
-				c.Inventory = NewObjlist(&o)
+				c.Inventory = NewTree(NewNode(data))
 			} else {
-				c.Inventory.Add(&o)
+				c.Inventory.Add(NewNode(data))
 			}
 		case "crate":
 			_, err := WriteToPlayer(w, "it's too heavy.\n")
@@ -293,26 +287,6 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 			}
 		default:
 			_, err := WriteToPlayer(w, "get what?\n")
-			if err != nil {
-				errorHandler <- err
-				err = nil
-			}
-		}
-	case "goto":
-		index, err := strconv.Atoi(string(args[0]))
-		if err != nil {
-			errorHandler <- err
-			err = nil
-		}
-		cur := c.Arealist.Lookup(index)
-		c.Arealist.Current = cur
-		if err := cur.Build(); err != nil {
-			errorHandler <- err
-			err = nil
-		}
-		if cur.Rooms != nil {
-			msg := fmt.Sprintf("%s\n", cur.Rooms.Data)
-			_, err = WriteToPlayer(w, msg)
 			if err != nil {
 				errorHandler <- err
 				err = nil
@@ -339,25 +313,25 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 				errorHandler <- err
 				err = nil
 			}
-			c.Inventory = Objlist{}
+			c.Inventory = Tree{}
 			break
 		}
 		cur := c.Inventory.Head
 		for cur != nil {
-			m, err := regexp.Match(args[0], []byte(cur.Desc))
+			m, err := regexp.Match(args[0], *cur.Data)
 			if err != nil {
 				errorHandler <- err
 				err = nil
 			}
 			if m {
-				msg := fmt.Sprintf("you drop %s on the ground and it dissolves.\n", cur.Desc)
+				msg := fmt.Sprintf("you drop %s on the ground and it dissolves.\n", *cur.Data)
 				if c.Inventory.Head == c.Inventory.Tail {
 					_, err := WriteToPlayer(w, msg)
 					if err != nil {
 						errorHandler <- err
 						err = nil
 					}
-					c.Inventory = Objlist{}
+					c.Inventory = Tree{}
 					break
 				}
 				_ = c.Inventory.Drop(cur.Id)

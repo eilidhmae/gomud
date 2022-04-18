@@ -14,11 +14,11 @@ type Character struct {
 	Stats		Stats		`json:"stats"`
 	Action		string		`json:"-"`
 	Mutex		sync.Mutex	`json:"-"`
-	Arealist	Arealist	`json:"-"`
-	Inventory	Objlist		`json:"-"`
+	Inventory	Tree		`json:"-"`
 	Cursor		string		`json:"cursor"`
 	Level		int		`json:"level"`
 	CanSave		bool		`json:"can_save"`
+	Realm		Realm		`json:"-"`
 }
 
 func NewCharacter(name string, r io.Reader, w io.Writer) (Character, error) {
@@ -59,16 +59,16 @@ func LoadCharacter(name string) (Character, error) {
 	}
 	if len(data) > 1 {
 		var inventory []string
-		var objs Objlist
+		var objs Tree
 		if err := json.Unmarshal(data[1], &inventory); err != nil {
 			return c, err
 		}
-		for id, desc := range inventory {
+		for id, object := range inventory {
 			switch {
 			case id == 0:
-				objs = NewObjlist(&Object{Id: id, Desc: desc})
+				objs = NewTree(NewNode([]byte(object)))
 			default:
-				objs.Add(&Object{Id: id, Desc: desc})
+				objs.Add(NewNode([]byte(object)))
 			}
 		}
 		c.Inventory = objs
@@ -108,7 +108,7 @@ func (c *Character) Save() error {
 		inventory := []string{}
 		cur := c.Inventory.Head
 		for cur != nil {
-			inventory = append(inventory, cur.Desc)
+			inventory = append(inventory, string(*cur.Data))
 			cur = cur.Next
 		}
 		binv, err := json.Marshal(inventory)
