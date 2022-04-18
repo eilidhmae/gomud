@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"regexp"
 	"strconv"
 )
 
@@ -151,6 +152,7 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 		switch args[0] {
 		case "none":
 			_, err := WriteToPlayer(w,
+			  "The Shady Coffeehouse\n" +
 			  "There's a tree. it doesn't move much. There's a wooden crate under the tree, and a pot of coffee with clean mugs.\n")
 			if err != nil {
 				errorHandler <- err
@@ -164,7 +166,13 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 				errorHandler <- err
 				err = nil
 			}
-		case "coffee":
+		case "leaf":
+			_, err := WriteToPlayer(w, "A dewy leaf lies upon the ground.\n")
+			if err != nil {
+				errorHandler <- err
+				err = nil
+			}
+		case "coffee", "mugs", "mug", "pot":
 			_, err := WriteToPlayer(w, "A shiny pot seems to have an endless supply of coffee. Clean, teal mugs wait to be filled.\n")
 			if err != nil {
 				errorHandler <- err
@@ -264,6 +272,45 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 		c.SetCursor(cursor)
 		if cursor == "fancy" {
 			c.SetCursor(fmt.Sprintf("%s the %s-> ", c.Name, c.Class))
+		}
+	case "drop":
+		if args[0] == "none" {
+			_, err := WriteToPlayer(w, "drop what?\n")
+			if err != nil {
+				errorHandler <- err
+				err = nil
+			}
+			break
+		}
+		if args[0] == "all" {
+			_, err := WriteToPlayer(w, "You drop everything and it all disappears in smoke.\n")
+			if err != nil {
+				errorHandler <- err
+				err = nil
+			}
+			c.Inventory = Objlist{}
+			break
+		}
+		cur := c.Inventory.Head
+		for cur != nil {
+			errorHandler <- fmt.Errorf("checking inventory for %s: [%d] %s", args[0], cur.Id, cur.Desc)
+			m, err := regexp.Match(args[0], []byte(cur.Desc))
+			if err != nil {
+				errorHandler <- err
+				err = nil
+			}
+			if m {
+				errorHandler <- fmt.Errorf("found matching item [%d] %s", cur.Id, cur.Desc)
+				_ = c.Inventory.Drop(cur.Id)
+				_, err := WriteToPlayer(w, fmt.Sprintf("you drop %s on the ground and it dissolves.\n", cur.Desc))
+				if err != nil {
+					errorHandler <- err
+					err = nil
+				}
+				cur = nil
+				break
+			}
+			cur = cur.Next
 		}
 	default:
 		_, err := WriteToPlayer(w, "not possible.\n")
