@@ -1,3 +1,5 @@
 gomud
 *.swp
 *.log
+players/*
+!players/.gitkeep

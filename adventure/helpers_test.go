@@ -95,3 +95,11 @@ func TestJoinArgs(t *testing.T) {
 		t.Errorf("joinArgs mismatch: got: %s expected: %s", got, expected)
 	}
 }
+
+func TestMatches(t *testing.T) {
+	reg := "free"
+	text := "all free people"
+	if matches(reg, text) != true {
+		t.Errorf("matches did not match.")
+	}
+}

@@ -148,6 +148,43 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 				}
 			}
 		}
+	case "drink":
+		switch args[0] {
+		case "none":
+			_, err := WriteToPlayer(w, "drink what?\n")
+			if err != nil {
+				errorHandler <- err
+				err = nil
+			}
+		case "coffee", "mug":
+			if c.Inventory.HasObject(args[0]) {
+				_, err := WriteToPlayer(w, "you drink coffee from a mug.\n")
+				if err != nil {
+					errorHandler <- err
+					err = nil
+				}
+				if c.CanSave == false {
+					c.CanSave = true
+					_, err := WriteToPlayer(w,
+						"Congratulations " + c.Name + "\n" +
+						"You have gained a level!\n" +
+						"You may now save your character with 'save'.\n" +
+						"You also get a fancy new prompt!\n")
+					c.FancyCursor()
+					c.Level = c.Level + 1
+					if err != nil {
+						errorHandler <- err
+						err = nil
+					}
+				}
+			}
+		default:
+			_, err := WriteToPlayer(w, "you don't seem to have that.\n")
+			if err != nil {
+				errorHandler <- err
+				err = nil
+			}
+		}
 	case "look", "l":
 		switch args[0] {
 		case "none":
@@ -293,24 +330,40 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 		}
 		cur := c.Inventory.Head
 		for cur != nil {
-			errorHandler <- fmt.Errorf("checking inventory for %s: [%d] %s", args[0], cur.Id, cur.Desc)
 			m, err := regexp.Match(args[0], []byte(cur.Desc))
 			if err != nil {
 				errorHandler <- err
 				err = nil
 			}
 			if m {
-				errorHandler <- fmt.Errorf("found matching item [%d] %s", cur.Id, cur.Desc)
+				if c.Inventory.Count == 1 {
+					c.Inventory = Objlist{}
+					break
+				}
 				_ = c.Inventory.Drop(cur.Id)
 				_, err := WriteToPlayer(w, fmt.Sprintf("you drop %s on the ground and it dissolves.\n", cur.Desc))
 				if err != nil {
 					errorHandler <- err
 					err = nil
 				}
-				cur = nil
 				break
 			}
 			cur = cur.Next
+		}
+	case "save":
+		if c.CanSave == true {
+			err := c.Save()
+			if err != nil {
+				errorHandler <- err
+				err = nil
+			}
+			errorHandler <- fmt.Errorf("%s has saved.", c.Name)
+		} else {
+			_, err := WriteToPlayer(w, "not possible.\n")
+			if err != nil {
+				errorHandler <- err
+				err = nil
+			}
 		}
 	default:
 		_, err := WriteToPlayer(w, "not possible.\n")

@@ -43,3 +43,19 @@ func TestObjlistDrop(t *testing.T) {
 		t.Errorf("Drop returned different Id: expected: 2 got: %d", dropped.Id)
 	}
 }
+
+func TestHasObject(t *testing.T) {
+	l := NewObjlist(&Object{Desc: "test object 1", Id: 1})
+	l.Add(&Object{Desc: "test object 2", Id: 2})
+	l.Add(&Object{Desc: "test object 3", Id: 3})
+
+	if l.HasObject("test object 3") != true {
+		t.Errorf("HasObject failed to match.")
+	}
+	if l.HasObject("no such object") != false {
+		t.Errorf("HasObject false positive.")
+	}
+	if l.HasObject("ject 3") != true {
+		t.Errorf("HasObject partial match failed.")
+	}
+}

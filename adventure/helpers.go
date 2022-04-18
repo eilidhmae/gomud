@@ -1,7 +1,10 @@
 package gomud
 
 import (
+	"fmt"
 	"math/rand"
+	"os"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -51,4 +54,31 @@ func getRandomStat(min, max int) int {
 	}
 	rand.Seed(time.Now().UnixNano())
 	return rand.Intn(max - min + 1) + min
+}
+
+func matches(reg, text string) bool {
+	m, err := regexp.Match(reg, []byte(text))
+	if err != nil {
+		return false
+	}
+	return m
+}
+
+func findPlayerFiles() (string, error) {
+	var playersPath string
+	cwd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	ss := strings.Split(cwd, "/")
+	switch {
+	case ss[len(ss)-1] == "adventure":
+		playersPath = strings.Join(ss[:len(ss)-1], "/") + "/players/"
+		return playersPath, nil
+	case ss[len(ss)-1] == "gomud":
+		playersPath = cwd + "/players/"
+		return playersPath, nil
+	default:
+		return cwd, fmt.Errorf("%s: players directory not found.", cwd)
+	}
 }

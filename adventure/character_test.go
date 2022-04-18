@@ -30,3 +30,11 @@ func TestFancyCursor(t *testing.T) {
 		t.Errorf("FancyCursor unexpected cursor: %s", c.Cursor)
 	}
 }
+
+func TestSave(t *testing.T) {
+	c := Character{Name: "tester", Class: "mage"}
+	err := c.Save()
+	if err != nil {
+		t.Error(err)
+	}
+}

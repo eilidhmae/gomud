@@ -1,19 +1,19 @@
 package gomud
 
 type Object struct {
-	Id		int
-	Desc		string
-	Area		*Area
-	Next		*Object
-	Previous	*Object
+	Id		int		`json:"id"`
+	Desc		string		`json:"desc"`
+	Area		*Area		`json:"-"`
+	Next		*Object		`json:"-"`
+	Previous	*Object		`json:"-"`
 }
 
 type Objlist struct {
-	Count		int
-	Data		*[]byte
-	Head		*Object
-	Tail		*Object
-	Current		*Object
+	Count		int		`json:"count"`
+	Data		*[]byte		`json:"-"`
+	Head		*Object		`json:"-"`
+	Tail		*Object		`json:"-"`
+	Current		*Object		`json:"-"`
 }
 
 func NewObjlist(p *Object) Objlist {
@@ -37,6 +37,17 @@ func (l *Objlist) Lookup(index int) *Object {
 		cur = cur.Next
 	}
 	return cur
+}
+
+func (l *Objlist) HasObject(desc string) bool {
+	cur := l.Head
+	for cur != nil {
+		if matches(desc, cur.Desc) {
+			return true
+		}
+		cur = cur.Next
+	}
+	return false
 }
 
 func (l *Objlist) Add(p *Object) int {
