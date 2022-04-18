@@ -1,9 +1,55 @@
 package gomud
 
 import (
+	"os"
 	"reflect"
 	"testing"
+	"strings"
 )
+
+func TestNewCharacter(t *testing.T) {
+	name := "duncan"
+	class := "cleric"
+	r := strings.NewReader(class)
+	w, err := os.OpenFile(os.DevNull, os.O_APPEND | os.O_WRONLY, os.ModeAppend)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer w.Close()
+	c, err := NewCharacter(name, r, w)
+	if err != nil {
+		t.Error(err)
+	}
+	if c.Name != name {
+		t.Errorf("NewCharacter name mismatch.")
+	}
+	if c.Level != 1 {
+		t.Errorf("NewCharacter level mismatch.")
+	}
+	if c.Cursor != "What would you like to do?\n" {
+		t.Errorf("NewCharacter cursor mismatch.")
+	}
+	if c.Class != "cleric" {
+		t.Errorf("NewCharacter class mismatch.")
+	}
+	if c.Stats.Raw == nil {
+		t.Errorf("NewCharacter Stats are nil.")
+	}
+	switch {
+	case c.Stats.Str == 0:
+		t.Errorf("NewCharacter Str is 0.")
+	case c.Stats.Dex == 0:
+		t.Errorf("NewCharacter Dex is 0.")
+	case c.Stats.Con == 0:
+		t.Errorf("NewCharacter Con is 0.")
+	case c.Stats.Wis == 0:
+		t.Errorf("NewCharacter Wis is 0.")
+	case c.Stats.Int == 0:
+		t.Errorf("NewCharacter Int is 0.")
+	case c.Stats.Cha == 0:
+		t.Errorf("NewCharacter Cha is 0.")
+	}
+}
 
 func TestSetName(t *testing.T) {
 	name := "alice"
