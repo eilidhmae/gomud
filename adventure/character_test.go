@@ -1,6 +1,9 @@
 package gomud
 
-import "testing"
+import (
+	"reflect"
+	"testing"
+)
 
 func TestSetName(t *testing.T) {
 	name := "alice"
@@ -32,9 +35,20 @@ func TestFancyCursor(t *testing.T) {
 }
 
 func TestSave(t *testing.T) {
-	c := Character{Name: "tester", Class: "mage"}
+	c := initializeTestCharacter()
 	err := c.Save()
 	if err != nil {
 		t.Error(err)
+	}
+}
+
+func TestLoadCharacter(t *testing.T) {
+	b := initializeTestCharacter()
+	c, err := LoadCharacter("tester")
+	if err != nil {
+		t.Error(err)
+	}
+	if reflect.DeepEqual(b, c) != true {
+		t.Errorf("Load Character mismatch.")
 	}
 }
