@@ -123,7 +123,7 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 		c.Mutex.Unlock()
 		return true
 	case "help":
-		_, err := WriteToPlayer(w, "you can: areas,get,help,inventory,look,prompt,quit,stats\n")
+		_, err := WriteToPlayer(w, "you can: areas,drink,drop,get,help,inventory,look,prompt,quit,save,stats\n")
 		if err != nil {
 			errorHandler <- err
 			err = nil
@@ -350,12 +350,18 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 				err = nil
 			}
 			if m {
-				if c.Inventory.Count == 1 {
+				msg := fmt.Sprintf("you drop %s on the ground and it dissolves.\n", cur.Desc)
+				if c.Inventory.Head == c.Inventory.Tail {
+					_, err := WriteToPlayer(w, msg)
+					if err != nil {
+						errorHandler <- err
+						err = nil
+					}
 					c.Inventory = Objlist{}
 					break
 				}
 				_ = c.Inventory.Drop(cur.Id)
-				_, err := WriteToPlayer(w, fmt.Sprintf("you drop %s on the ground and it dissolves.\n", cur.Desc))
+				_, err := WriteToPlayer(w, msg)
 				if err != nil {
 					errorHandler <- err
 					err = nil

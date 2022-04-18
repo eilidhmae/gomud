@@ -1,6 +1,7 @@
 package gomud
 
 import (
+	"bufio"
 	"fmt"
 	"math/rand"
 	"os"
@@ -10,6 +11,27 @@ import (
 )
 
 const SPLIT_CHAR string = ` `
+const PLAYER_SAVE_EXT string = `.save`
+
+func getCharacterData(name string) ([][]byte, error) {
+	var d [][]byte
+	loc, err := findPlayerFiles()			// loc is absolute filepath ending with slash
+	if err != nil {
+		return d, err
+	}
+	f := loc + name + PLAYER_SAVE_EXT
+	fh, err := os.OpenFile(f, os.O_RDONLY, 0)
+	if err != nil {
+		return d, err
+	}
+	defer fh.Close()
+	s := bufio.NewScanner(fh)
+	for s.Scan() {
+		b := s.Bytes()
+		d = append(d, b)
+	}
+	return d, nil
+}
 
 func packageBytes(lines []string) *[]byte {
 	b := []byte(strings.Join(lines, "\n"))

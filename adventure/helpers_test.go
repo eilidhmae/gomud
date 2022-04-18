@@ -103,3 +103,19 @@ func TestMatches(t *testing.T) {
 		t.Errorf("matches did not match.")
 	}
 }
+
+func TestGetCharacterData(t *testing.T) {
+	name := "tester"
+	expectedElementCount := 1
+	expectedPayloadSize := 183
+	data, err := getCharacterData(name)
+	if err != nil {
+		t.Error(err)
+	}
+	if len(data) != expectedElementCount {
+		t.Errorf("getCharacterData: unexpected element count: %d", len(data))
+	}
+	if len(data[0]) != expectedPayloadSize {
+		t.Errorf("getCharacterData: unexpected payload size: %d", len(data[0]))
+	}
+}
