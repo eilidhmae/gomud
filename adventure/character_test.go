@@ -21,3 +21,12 @@ func TestSetCursor(t *testing.T) {
 		t.Errorf("SetCursor: cursor mismatch")
 	}
 }
+
+func TestFancyCursor(t *testing.T) {
+	expected := "drago the mage-> "
+	c := Character{Name: "drago", Class: "mage"}
+	c.FancyCursor()
+	if c.Cursor != expected {
+		t.Errorf("FancyCursor unexpected cursor: %s", c.Cursor)
+	}
+}

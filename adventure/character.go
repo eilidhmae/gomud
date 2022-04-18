@@ -36,3 +36,7 @@ func (c *Character) SetName(name string) {
 func (c *Character) SetCursor(cursor string) {
 	c.Cursor = cursor
 }
+
+func (c *Character) FancyCursor() {
+	c.Cursor = c.Name + " the " + c.Class + "-> "
+}

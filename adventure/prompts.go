@@ -271,7 +271,7 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 		cursor := joinArgs(args)
 		c.SetCursor(cursor)
 		if cursor == "fancy" {
-			c.SetCursor(fmt.Sprintf("%s the %s-> ", c.Name, c.Class))
+			c.FancyCursor()
 		}
 	case "drop":
 		if args[0] == "none" {
