@@ -18,23 +18,37 @@ func LoginWithOS(areasPath string) (Character, error) {
 }
 
 func Login(r io.Reader, w io.Writer, areasPath string) (Character, error) {
+	var char Character
 	_, err := WriteToPlayer(w, "Hello adventurer. What is your name?\n")
 	if err != nil {
-		return Character{}, err
+		return char, err
 	}
 	s := bufio.NewScanner(r)
 	s.Scan()
 	name := s.Text()
-	c, err := NewCharacter(name, r, w)
-	if err != nil {
-		return Character{}, err
+	if CharacterExists(name) {
+		c, err := LoadCharacter(name)
+		if err != nil {
+			return c, err
+		}
+		char = c
+		_, err = WriteToPlayer(w, fmt.Sprintf("Welcome back %s.\n", c.Name))
+		if err != nil {
+			return char, err
+		}
+	} else {
+		c, err := NewCharacter(name, r, w)
+		if err != nil {
+			return c, err
+		}
+		char = c
 	}
-	al, err := BuildAreaList(areasPath)
+	l, err := BuildAreaList(areasPath)
 	if err != nil {
-		return Character{}, err
+		return char, err
 	}
-	c.Arealist = al
-	return c, nil
+	char.Arealist = l
+	return char, nil
 }
 
 func (c *Character) ClassPrompt(r io.Reader, w io.Writer) error {

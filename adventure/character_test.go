@@ -52,3 +52,12 @@ func TestLoadCharacter(t *testing.T) {
 		t.Errorf("Load Character mismatch.")
 	}
 }
+
+func TestCharacterExists(t *testing.T) {
+	if CharacterExists("tester") != true {
+		t.Errorf("expected to find tester Character")
+	}
+	if CharacterExists("ghewirehaerawefertaerw") != false {
+		t.Errorf("did not expect to find bogus Character")
+	}
+}

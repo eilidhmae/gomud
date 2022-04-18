@@ -38,6 +38,14 @@ func NewCharacter(name string, r io.Reader, w io.Writer) (Character, error) {
 	return c, nil
 }
 
+func CharacterExists(name string) bool {
+	_, err := LoadCharacter(name)
+	if err != nil {
+		return false
+	}
+	return true
+}
+
 func LoadCharacter(name string) (Character, error) {
 	var c Character
 	var inventory []string
