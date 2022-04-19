@@ -131,3 +131,21 @@ func TestFindPlayerFiles(t *testing.T) {
 		}
 	}
 }
+
+func TestParseObjects(t *testing.T) {
+	expected := 941
+	realm, err := BuildRealm(AREAS_PATH)
+	if err != nil {
+		t.Error(err)
+	}
+	objs := ParseObjects(*realm.Objects.Data)
+	got := 0
+	cur := objs.Head
+	for cur != nil {
+		got = got + 1
+		cur = cur.Next
+	}
+	if got != expected {
+		t.Errorf("ParseObjects mismatch: expected: %d got: %d\n", expected, got)
+	}
+}

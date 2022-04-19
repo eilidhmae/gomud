@@ -46,6 +46,8 @@ func Login(r io.Reader, w io.Writer, areasPath string) (Character, error) {
 	if err != nil {
 		return char, err
 	}
+	objs := ParseObjects(*realm.Objects.Data)
+	realm.Objects = objs
 	char.Realm = realm
 	return char, nil
 }

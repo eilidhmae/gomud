@@ -104,3 +104,27 @@ func findPlayerFiles() (string, error) {
 		return cwd, fmt.Errorf("%s: players directory not found.", cwd)
 	}
 }
+
+func ParseObjects(data []byte) Tree {
+	mugName := "a mug of coffee"
+	mugData := packageBytes([]string{"#1",mugName,"A mug of coffee lies here."})
+	objs := NewTree(NewNodeByName(mugName, *mugData))
+	leafName := "a leaf"
+	leafData := packageBytes([]string{"#3",leafName,"A dewy leaf lies here."})
+	objs.Add(NewNodeByName(leafName, *leafData))
+	newObjectPattern := `^#[0-9]*$` // object index
+	newObjectRegex := regexp.MustCompile(newObjectPattern)
+	lines := strings.Split(string(data), "\n")
+	for index, l := range lines {
+		if newObjectRegex.MatchString(l) {
+			// from location get line 0, 2, 3
+			// create object Node{Data: []string{#<objnum>,<short desc>,<long desc>}, Name: <short desc>}
+			id := lines[index]
+			short := lines[index+2]
+			long := lines[index+3]
+			data := packageBytes([]string{id,short,long})
+			objs.Add(NewNodeByName(short, *data))
+		}
+	}
+	return objs
+}
