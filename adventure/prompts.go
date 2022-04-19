@@ -361,6 +361,30 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 				err = nil
 			}
 		}
+	case "catalog":
+		if c.CanSave == true {
+			cur := c.Realm.Objects.Head
+			for cur != nil {
+				id, short, long := cur.GetObjectData()
+				if id != "" {
+					WriteToPlayer(w, fmt.Sprintf("%s\t%s\t%s\n", id, short, long))
+				}
+				cur = cur.Next
+			}
+		}
+	case "summon":
+		if c.CanSave == true {
+			obj := c.Realm.Objects.FindObjectById(args[0])
+			if obj != nil {
+				c.Inventory.Add(obj)
+				_, short, _ := obj.GetObjectData()
+				_, err := WriteToPlayer(w, fmt.Sprintf("you summon %s.\n", short))
+				if err != nil {
+					errorHandler <- err
+					err = nil
+				}
+			}
+		}
 	default:
 		_, err := WriteToPlayer(w, "not possible.\n")
 		if err != nil {

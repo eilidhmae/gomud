@@ -1,6 +1,9 @@
 package gomud
 
-import "regexp"
+import (
+	"regexp"
+	"strings"
+)
 
 type Node struct {
 	Id		int		`json:"id"`
@@ -105,4 +108,24 @@ func (l *Tree) HasData(reg string) (int, bool) {
 		cur = cur.Next
 	}
 	return 0, false
+}
+
+func (n *Node) GetObjectData() (string, string, string) {
+	lines := strings.Split(string(*n.Data), "\n")
+	if len(lines) == 3 {
+		return lines[0], strings.TrimSuffix(lines[1], "~"), strings.TrimSuffix(lines[2], "~")
+	}
+	return "", "", ""
+}
+
+func (l *Tree) FindObjectById(id string) *Node {
+	cur := l.Head
+	for cur != nil {
+		objectId, _, _ := cur.GetObjectData()
+		if objectId == id {
+			return cur
+		}
+		cur = cur.Next
+	}
+	return nil
 }
