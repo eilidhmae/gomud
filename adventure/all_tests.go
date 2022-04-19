@@ -1,5 +1,7 @@
 package gomud
 
+const AREAS_PATH string = `../areas/`
+
 func initializeTestCharacter() Character {
 	return Character{
 		Name:		"tester",
