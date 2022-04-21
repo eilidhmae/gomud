@@ -140,3 +140,16 @@ func TestHasData(t *testing.T) {
 		t.Errorf("HasData false match.")
 	}
 }
+
+func TestFindObjectById(t *testing.T) {
+	o := TestRealm.Objects.FindObjectById(`#1`)
+	if o == nil {
+		t.Skip("object id #1 not found.")
+	}
+	if o.Previous != nil {
+		t.Errorf("FindObjectById returned Previous pointer.")
+	}
+	if o.Next != nil {
+		t.Errorf("FindObjectById returned Next pointer.")
+	}
+}

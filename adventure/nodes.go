@@ -124,7 +124,11 @@ func (l *Tree) FindObjectById(id string) *Node {
 	for cur != nil {
 		objectId, _, _ := cur.GetObjectData()
 		if objectId == id {
-			return cur
+			return &Node{
+				Id:	1,
+				Name:	cur.Name,
+				Data:	cur.Data,
+			}
 		}
 		cur = cur.Next
 	}
