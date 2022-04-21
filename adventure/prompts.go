@@ -135,7 +135,7 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 			err = nil
 		}
 	case "inventory", "inv", "i":
-		if c.Inventory.Head == nil {
+		if c.Inventory == nil {
 			_, err := WriteToPlayer(w, "you ain't got shit.\n")
 			if err != nil {
 				errorHandler <- err
@@ -250,43 +250,42 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 			err = nil
 		}
 	case "get":
+		var name string
+		var err error
 		switch args[0] {
 		case "coffee", "mug":
-			_, err := WriteToPlayer(w, "you get warm coffee in a fresh mug.\n")
+			name, err = c.SummonObjectId(`#1`)
 			if err != nil {
 				errorHandler <- err
 				err = nil
-			}
-			data := []byte("a mug of warm coffee")
-			if c.Inventory.Head == nil {
-				c.Inventory = NewTree(NewNode(data))
-			} else {
-				c.Inventory.Add(NewNode(data))
+				break
 			}
 		case "leaf":
-			_, err := WriteToPlayer(w, "you pick up a leaf.\n")
+			name, err = c.SummonObjectId(`#3`)
 			if err != nil {
 				errorHandler <- err
 				err = nil
-			}
-			data := []byte("a leaf")
-			if c.Inventory.Head == nil {
-				c.Inventory = NewTree(NewNode(data))
-			} else {
-				c.Inventory.Add(NewNode(data))
+				break
 			}
 		case "crate":
-			_, err := WriteToPlayer(w, "it's too heavy.\n")
+			_, err = WriteToPlayer(w, "it's too heavy.\n")
 			if err != nil {
 				errorHandler <- err
 				err = nil
+				break
 			}
 		default:
-			_, err := WriteToPlayer(w, "get what?\n")
+			_, err = WriteToPlayer(w, "get what?\n")
 			if err != nil {
 				errorHandler <- err
 				err = nil
+				break
 			}
+		}
+		_, err = WriteToPlayer(w, fmt.Sprintf("You get %s.\n", name))
+		if err != nil {
+			errorHandler <- err
+			err = nil
 		}
 	case "prompt":
 		cursor := joinArgs(args)
