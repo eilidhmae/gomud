@@ -2,10 +2,6 @@ package gomud
 
 import "testing"
 
-func init() {
-	initializeTestRealm()
-}
-
 func TestBuildRealm(t *testing.T) {
 	expectedAreaCount := 44
 	r, err := BuildRealm(AREAS_PATH)
@@ -44,7 +40,7 @@ func TestParseObjects(t *testing.T) {
 	TestRealm = realm
 	realm.ParseObjects([]string{})
 	objs := realm.Objects
-	expectedId := "#1"
+	expectedId := `#1`
 	expectedShort := "a mug of coffee"
 	expectedLong := "A mug of coffee lies here."
 	cur := realm.Objects.Head

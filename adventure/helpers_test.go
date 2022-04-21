@@ -2,10 +2,6 @@ package gomud
 
 import "testing"
 
-func init() {
-	initializeTestRealm()
-}
-
 func TestPackageBytes(t *testing.T) {
 	msg := []string{"this is the song that never ends.",
 			"it just goes on and on my friends.",

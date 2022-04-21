@@ -21,8 +21,8 @@ type Tree struct {
 	Current		*Node		`json:"-"`
 }
 
-func NewTree(node *Node) Tree {
-	return Tree{
+func NewTree(node *Node) *Tree {
+	return &Tree{
 		Count:		1,
 		Head:		node,
 		Tail:		node,

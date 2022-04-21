@@ -11,10 +11,10 @@ import (
 )
 
 type Realm struct {
-	Areas		Tree
-	Rooms		Tree
-	Objects		Tree
-	Mobiles		Tree
+	Areas		*Tree
+	Rooms		*Tree
+	Objects		*Tree
+	Mobiles		*Tree
 }
 
 func BuildRealm(areasPath string) (Realm, error) {
@@ -112,20 +112,20 @@ func (r *Realm) ParseAreaData() error {
 		}
 		cur = cur.Next
 	}
-	r.Rooms = Tree{}
+	r.Rooms = &Tree{}
 	r.Rooms.Data = packageBytes(rooms)
 	r.ParseObjects(objects)
-	r.Mobiles = Tree{}
+	r.Mobiles = &Tree{}
 	r.Mobiles.Data = packageBytes(mobiles)
 	return nil
 }
 
 func (r *Realm) ParseObjects(data []string) {
 	mugName := "a mug of coffee"
-	mugData := packageBytes([]string{"#1",mugName,"A mug of coffee lies here."})
+	mugData := packageBytes([]string{`#1`,mugName,"A mug of coffee lies here."})
 	objs := NewTree(NewNodeByName(mugName, *mugData))
 	leafName := "a leaf"
-	leafData := packageBytes([]string{"#3",leafName,"A dewy leaf lies here."})
+	leafData := packageBytes([]string{`#3`,leafName,"A dewy leaf lies here."})
 	objs.Add(NewNodeByName(leafName, *leafData))
 	newObjectPattern := `^#[0-9]*$` // object index
 	newObjectRegex := regexp.MustCompile(newObjectPattern)

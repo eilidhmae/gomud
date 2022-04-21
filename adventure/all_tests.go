@@ -1,8 +1,10 @@
 package gomud
 
-import (
-	"reflect"
-)
+import "reflect"
+
+func init() {
+	initializeTestRealm()
+}
 
 const AREAS_PATH string = `../areas/`
 

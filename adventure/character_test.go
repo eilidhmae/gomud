@@ -107,3 +107,15 @@ func TestCharacterExists(t *testing.T) {
 		t.Errorf("did not expect to find bogus Character")
 	}
 }
+
+func TestSummonObjectId(t *testing.T) {
+	c := initializeTestCharacter()
+	c.Realm = &TestRealm
+	name, err := c.SummonObjectId(`#1`)
+	if err != nil {
+		t.Error(err)
+	}
+	if name != "a mug of coffee" {
+		t.Errorf(`failed to summon object #1.`)
+	}
+}

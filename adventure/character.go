@@ -14,11 +14,11 @@ type Character struct {
 	Stats		Stats		`json:"stats"`
 	Action		string		`json:"-"`
 	Mutex		sync.Mutex	`json:"-"`
-	Inventory	Tree		`json:"-"`
+	Inventory	*Tree		`json:"-"`
 	Cursor		string		`json:"cursor"`
 	Level		int		`json:"level"`
 	CanSave		bool		`json:"can_save"`
-	Realm		Realm		`json:"-"`
+	Realm		*Realm		`json:"-"`
 }
 
 func NewCharacter(name string, r io.Reader, w io.Writer) (Character, error) {
@@ -59,7 +59,7 @@ func LoadCharacter(name string) (Character, error) {
 	}
 	if len(data) > 1 {
 		var inventory []string
-		var objs Tree
+		var objs *Tree
 		if err := json.Unmarshal(data[1], &inventory); err != nil {
 			return c, err
 		}
@@ -104,7 +104,7 @@ func (c *Character) Save() error {
 	defer fh.Close()
 	fh.Write(data)
 	fh.Write([]byte("\n"))
-	if c.Inventory.Head != nil {
+	if c.Inventory != nil {
 		inventory := []string{}
 		cur := c.Inventory.Head
 		for cur != nil {
@@ -122,10 +122,20 @@ func (c *Character) Save() error {
 }
 
 func (c *Character) SummonObjectId(id string) (string, error) {
-	obj := c.Realm.Objects.FindObjectById(id)
-	if obj == nil {
+	objects := c.Realm.Objects
+	if objects == nil {
+		return id, fmt.Errorf("SummonObjectId: c.Realm.Objects is empty")
+	}
+	o := objects.FindObjectById(id)
+	if o == nil {
 		return id, fmt.Errorf("object id %s not found.\n", id)
 	}
-	c.Inventory.Add(obj)
-	return obj.Name, nil
+	if c.Inventory == nil {
+		c.Inventory = NewTree(o)
+	} else {
+		if c.Inventory.Add(o) != c.Inventory.Count {
+			return id, fmt.Errorf("Inventory count mismatch.")
+		}
+	}
+	return o.Name, nil
 }

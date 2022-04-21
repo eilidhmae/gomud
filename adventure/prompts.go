@@ -46,7 +46,7 @@ func Login(r io.Reader, w io.Writer, areasPath string) (Character, error) {
 	if err != nil {
 		return char, err
 	}
-	char.Realm = realm
+	char.Realm = &realm
 	return char, nil
 }
 
@@ -149,7 +149,7 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 				err = nil
 			}
 			for cur != nil {
-				_, err := WriteToPlayer(w, fmt.Sprintf("%s\n", *cur.Data))
+				_, err := WriteToPlayer(w, fmt.Sprintf("%s\n", cur.Name))
 				if err != nil {
 					errorHandler <- err
 					err = nil
@@ -309,7 +309,7 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 				errorHandler <- err
 				err = nil
 			}
-			c.Inventory = Tree{}
+			c.Inventory = &Tree{}
 			break
 		}
 		cur := c.Inventory.Head
@@ -327,7 +327,7 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 						errorHandler <- err
 						err = nil
 					}
-					c.Inventory = Tree{}
+					c.Inventory = &Tree{}
 					break
 				}
 				_ = c.Inventory.Drop(cur.Id)
