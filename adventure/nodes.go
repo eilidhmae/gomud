@@ -67,12 +67,18 @@ func (l *Tree) LookupName(name string) *Node {
 }
 
 func (l *Tree) Add(p *Node) int {
-	old := l.Tail
-	old.Next = p
-	p.Previous = old
-	p.Id = old.Id + 1
-	l.Count = p.Id
-	l.Tail = p
+	if l.Head == nil {
+		l.Head = p
+		l.Tail = p
+		l.Count = l.Count + 1
+	} else {
+		old := l.Tail
+		old.Next = p		// old.Next is set to new Tail pointer
+		p.Previous = old	// new Tail Previous is set to old Tail pointer
+		p.Id = old.Id + 1	// update node id
+		l.Count = p.Id		// update tree count
+		l.Tail = p		// update tree tail
+	}
 	return l.Count
 }
 

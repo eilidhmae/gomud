@@ -122,11 +122,10 @@ func (c *Character) Save() error {
 }
 
 func (c *Character) SummonObjectId(id string) (string, error) {
-	objects := c.Realm.Objects
-	if objects == nil {
+	if c.Realm.Objects == nil {
 		return id, fmt.Errorf("SummonObjectId: c.Realm.Objects is empty")
 	}
-	o := objects.FindObjectById(id)
+	o := c.Realm.Objects.FindObjectById(id)
 	if o == nil {
 		return id, fmt.Errorf("object id %s not found.\n", id)
 	}
