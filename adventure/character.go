@@ -120,3 +120,12 @@ func (c *Character) Save() error {
 	}
 	return nil
 }
+
+func (c *Character) SummonObjectId(id string) (string, error) {
+	obj := c.Realm.Objects.FindObjectById(id)
+	if obj == nil {
+		return id, fmt.Errorf("object id %s not found.\n", id)
+	}
+	c.Inventory.Add(obj)
+	return obj.Name, nil
+}

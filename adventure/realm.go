@@ -69,7 +69,6 @@ func (r *Realm) ParseAreaData() error {
 		}
 		s := bufio.NewScanner(bytes.NewReader(*cur.Data))
 		// #MOBILES #OBJECTS #ROOMS marks beginning block, #0 marks end of block
-
 		readingRooms := false
 		readingObjects := false
 		readingMobiles := false
@@ -115,9 +114,34 @@ func (r *Realm) ParseAreaData() error {
 	}
 	r.Rooms = Tree{}
 	r.Rooms.Data = packageBytes(rooms)
-	r.Objects = Tree{}
-	r.Objects.Data = packageBytes(objects)
+	r.ParseObjects(objects)
 	r.Mobiles = Tree{}
 	r.Mobiles.Data = packageBytes(mobiles)
 	return nil
+}
+
+func (r *Realm) ParseObjects(data []string) {
+	mugName := "a mug of coffee"
+	mugData := packageBytes([]string{"#1",mugName,"A mug of coffee lies here."})
+	objs := NewTree(NewNodeByName(mugName, *mugData))
+	leafName := "a leaf"
+	leafData := packageBytes([]string{"#3",leafName,"A dewy leaf lies here."})
+	objs.Add(NewNodeByName(leafName, *leafData))
+	newObjectPattern := `^#[0-9]*$` // object index
+	newObjectRegex := regexp.MustCompile(newObjectPattern)
+	if len(data) > 0 {
+		for index, l := range data {
+			if newObjectRegex.MatchString(l) {
+				// from location get line 0, 2, 3
+				// create object Node{Data: []string{#<objnum>,<short desc>,<long desc>}, Name: <short desc>}
+				id := data[index]
+				short := strings.TrimSuffix(data[index+2], "~")
+				long := strings.TrimSuffix(data[index+3], "~")
+				d := packageBytes([]string{id,short,long})
+				objs.Add(NewNodeByName(short, *d))
+			}
+		}
+		objs.Data = packageBytes(data)
+		r.Objects = objs
+	}
 }

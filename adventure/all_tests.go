@@ -1,6 +1,12 @@
 package gomud
 
+import (
+	"reflect"
+)
+
 const AREAS_PATH string = `../areas/`
+
+var TestRealm Realm
 
 func initializeTestCharacter() Character {
 	return Character{
@@ -18,5 +24,14 @@ func initializeTestCharacter() Character {
 		Cursor:		"tester the mage-\u003e ",
 		Level:		2,
 		CanSave:	true,
+	}
+}
+
+func initializeTestRealm() {
+	if reflect.DeepEqual(TestRealm, Realm{}) {
+		r, err := BuildRealm(AREAS_PATH)
+		if err == nil {
+			TestRealm = r
+		}
 	}
 }

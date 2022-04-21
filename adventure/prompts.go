@@ -46,8 +46,6 @@ func Login(r io.Reader, w io.Writer, areasPath string) (Character, error) {
 	if err != nil {
 		return char, err
 	}
-	objs := ParseObjects(*realm.Objects.Data)
-	realm.Objects = objs
 	char.Realm = realm
 	return char, nil
 }
@@ -156,11 +154,7 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 					errorHandler <- err
 					err = nil
 				}
-				if cur.Next != nil {
-					cur = cur.Next
-				} else {
-					cur = nil
-				}
+				cur = cur.Next
 			}
 		}
 	case "drink":
@@ -374,15 +368,16 @@ func (c *Character) Do(r io.Reader, w io.Writer, errorHandler chan error) bool {
 		}
 	case "summon":
 		if c.CanSave == true {
-			obj := c.Realm.Objects.FindObjectById(args[0])
-			if obj != nil {
-				c.Inventory.Add(obj)
-				_, short, _ := obj.GetObjectData()
-				_, err := WriteToPlayer(w, fmt.Sprintf("you summon %s.\n", short))
-				if err != nil {
-					errorHandler <- err
-					err = nil
-				}
+			name, err := c.SummonObjectId(args[0])
+			if err != nil {
+				errorHandler <- err
+				err = nil
+				break
+			}
+			_, err = WriteToPlayer(w, fmt.Sprintf("You summon %s.\n", name))
+			if err != nil {
+				errorHandler <- err
+				err = nil
 			}
 		}
 	default:

@@ -110,10 +110,11 @@ func (l *Tree) HasData(reg string) (int, bool) {
 	return 0, false
 }
 
+// returns object id, object short desc, object long desc
 func (n *Node) GetObjectData() (string, string, string) {
 	lines := strings.Split(string(*n.Data), "\n")
 	if len(lines) == 3 {
-		return lines[0], strings.TrimSuffix(lines[1], "~"), strings.TrimSuffix(lines[2], "~")
+		return lines[0], lines[1], lines[2]
 	}
 	return "", "", ""
 }
